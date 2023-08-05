@@ -1,0 +1,15 @@
+{
+  "name": "tarot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "electron": "^25.4.0"
+  }
+}
