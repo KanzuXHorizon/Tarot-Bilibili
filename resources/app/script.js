@@ -1,1037 +1,141 @@
-
+var $jscomp = $jscomp || {};
+$jscomp.scope = {};
+$jscomp.createTemplateTagFirstArg = function(c) {
+  return c.raw = c;
+};
+$jscomp.createTemplateTagFirstArgWithRaw = function(c, a) {
+  c.raw = a;
+  return c;
+};
+$jscomp.arrayIteratorImpl = function(c) {
+  var a = 0;
+  return function() {
+    return a < c.length ? {done:!1, value:c[a++]} : {done:!0};
+  };
+};
+$jscomp.arrayIterator = function(c) {
+  return {next:$jscomp.arrayIteratorImpl(c)};
+};
+$jscomp.makeIterator = function(c) {
+  var a = "undefined" != typeof Symbol && Symbol.iterator && c[Symbol.iterator];
+  if (a) {
+    return a.call(c);
+  }
+  if ("number" == typeof c.length) {
+    return $jscomp.arrayIterator(c);
+  }
+  throw Error(String(c) + " is not an iterable or ArrayLike");
+};
 function Create_And_Respone() {
-
-    // Function to generate a random formation
-    function generateFormation() {
-        const tarotData = JSON_Tarot();
-        const formations = Object.keys(tarotData.formations);
-        const randomFormation = formations[Math.floor(Math.random() * formations.length)];
-        return tarotData.formations[randomFormation];
+  var c = function(a) {
+    for (var g = JSON_Tarot().cards, f = [], e = a.representations[Math.floor(Math.random() * a.representations.length)], d = 0; d < a.cards_num; d++) {
+      var b = Math.floor(Math.random() * Object.keys(g).length);
+      b = g[b];
+      var h = ["up", "down"][Math.floor(2 * Math.random())];
+      f[f.length - 1] && f[f.length - 1].Name == b.name_en + " / " + b.name_cn + " (" + ("up" == h ? "Th\u1eb3ng" : "Ng\u01b0\u1ee3c") + ")" ? d-- : f.push({Name:b.name_en + " / " + b.name_cn + " (" + ("up" == h ? "Th\u1eb3ng" : "Ng\u01b0\u1ee3c") + ")", Representation:e[d], Meaning:b.meaning[h], Type:b.type, Image:b.pic});
     }
-
-    // Function to divine the cards
-    function divineCards(formation) {
-        const tarotData = JSON_Tarot();
-        const cards = tarotData.cards;
-        const divinedCards = [];
-
-        const formationRepresentation = formation.representations[Math.floor(Math.random() * formation.representations.length)];
-            for (let i = 0; i < formation.cards_num; i++) {
-                const randomCardIndex = Math.floor(Math.random() * Object.keys(cards).length);
-                const randomCard = cards[randomCardIndex];
-                const random_meaning = ['up','down'][Math.floor(Math.random() * 2)];
-
-                if ((divinedCards[divinedCards.length - 1]) && (divinedCards[divinedCards.length - 1]).Name ==  randomCard.name_en + " / " + randomCard.name_cn + " (" + (random_meaning == "up" ? "Thẳng": "Ngược") + ")") {
-                    i--;
-                    continue;
-                }
-
-                divinedCards.push({
-                    Name: randomCard.name_en + " / " + randomCard.name_cn + " (" + (random_meaning == "up" ? "Thẳng": "Ngược") + ")",
-                    Representation: formationRepresentation[i],//đại diện
-                    Meaning: randomCard.meaning[random_meaning], // Replace with randomCard.meaning.up or .down for random meanings
-                    Type: randomCard.type,
-                    Image: randomCard.pic
-                });
-            }
-        return divinedCards;
+    return f;
+  }(function() {
+    var a = JSON_Tarot(), g = Object.keys(a.formations);
+    return a.formations[g[Math.floor(Math.random() * g.length)]];
+  }());
+  return {Card:c, Msg:function(a) {
+    var g = [];
+    a = $jscomp.makeIterator(a);
+    for (var f = a.next(); !f.done; f = a.next()) {
+      var e = f.value;
+      f = g;
+      var d = f.push, b = e.Name, h = "- \u0110\u1ea1i Di\u1ec7n: " + e.Representation, k = "- \u00dd Ngh\u0129a: " + e.Meaning;
+      e = e.Type;
+      switch(e) {
+        case "MajorArcana":
+          e = "B\u1ed9 \u1ea8n Ch\u00ednh";
+      }
+      d.call(f, {Name:b, Representation:h, Meaning:k, Type:"- Thu\u1ed9c Lo\u1ea1i: " + e});
     }
-
-    function format_type(Type) {
-        switch (Type) {
-            case "MajorArcana" : return "Bộ Ẩn Chính";
-            default: return Type;
-        }
-    }
-
-    function generator_msg(Cards) {
-        const arr = [];
-        for (let i of Cards) {
-            arr.push({
-                Name: i.Name,
-                Representation: "- Đại Diện: " + i.Representation,
-                Meaning: "- Ý Nghĩa: " + i.Meaning,
-                Type: "- Thuộc Loại: " + format_type(i.Type)
-            });
-        }
-    }
-
-    const Card = divineCards(generateFormation());
-    return {
-        Card: Card,
-        Msg: generator_msg(Card)
-    }; 
+  }(c)};
 }
-window.onload = Delete_And_Create_Card()
-
+window.onload = Delete_And_Create_Card();
 function Delete_And_Create_Card() {
-    const container = document.getElementsByClassName('container')[0]
-    var child = (document.getElementsByClassName('container')[0]);
-        while(child.firstElementChild) {
-            child.removeChild(child.firstElementChild);
-        }
-    const new_message = Create_And_Respone();
-    const popup = document.querySelector('.popup');
-    const popupBack = document.querySelector('.popup-back');
-    popupBack.addEventListener('click', () => {
-        popup.classList.remove('active');
-    });
-
-    var Xy = 1;
-    for (let i of new_message.Card) {
-
-        let cardDiv = document.createElement('div');
-
-        let cardImg = document.createElement('img');
-
-            cardDiv.className = 'card';
-            cardImg.className = 'RvCard';
-            if (Xy == 1) {
-                cardImg.src = './Image/BilibiliTarot/' + 'Extra' + "/" + 'tarot.png';
-                Xy++;
-            }
-            else if (Xy == 2) {
-                cardImg.src = './Image/BilibiliTarot/' + 'Extra' + "/" + '背景.png';
-                Xy = 1;
-            }
-            
-            cardImg.onclick = function() {
-                if (!cardImg.classList.contains('flipped') && !cardImg.classList.contains('slide')) {
-                    if ((i.Name).includes('Ngược')) {
-                        cardImg.classList.add('slide');
-                    }
-                    else {
-                        cardImg.classList.add('flipped');
-                    }
-                    cardImg.src = './Image/BilibiliTarot/' + i.Type + "/" + i.Image + ".png";
-                }
-                else {
-                    const title = document.getElementById('popupName');
-                    title.innerHTML = `<b> ${i.Name} </b>`
-                    const Description = document.getElementById('descriptionpop');
-                    Description.innerHTML = "<b> [|] => Ý Nghĩa <= [|]</b> <br> <i>" + i.Meaning + "</i>";
-                    const Image = document.getElementById('imgne');
-                    Image.src = './Image/BilibiliTarot/' + i.Type + "/" + i.Image + ".png";
-                    const keyword = document.getElementById('keyword');
-                    keyword.innerHTML = '<b> ||| => Từ Khoá <= ||| </b> <br> <i>' + i.Representation + "</i>";
-                    popup.classList.add('active');
-                }
-            }
-            cardImg.alt = i.Name;
-
-        cardDiv.appendChild(cardImg);
-        
-        container.appendChild(cardDiv);
-    }
+  for (var c = document.getElementsByClassName("container")[0], a = document.getElementsByClassName("container")[0]; a.firstElementChild;) {
+    a.removeChild(a.firstElementChild);
+  }
+  var g = Create_And_Respone(), f = document.querySelector(".popup");
+  document.querySelector(".popup-back").addEventListener("click", function() {
+    f.classList.remove("active");
+  });
+  a = 1;
+  g = $jscomp.makeIterator(g.Card);
+  for (var e = g.next(), d = {}; !e.done; d = {cardImg:d.cardImg, i$jscomp$5:d.i$jscomp$5}, e = g.next()) {
+    d.i$jscomp$5 = e.value, e = document.createElement("div"), d.cardImg = document.createElement("img"), e.className = "card", d.cardImg.className = "RvCard", 1 == a ? (d.cardImg.src = "./Image/BilibiliTarot/Extra/tarot.png", a++) : 2 == a && (d.cardImg.src = "./Image/BilibiliTarot/Extra/\u80cc\u666f.png", a = 1), d.cardImg.onclick = function(b) {
+      return function() {
+        b.cardImg.classList.contains("flipped") || b.cardImg.classList.contains("slide") ? (document.getElementById("popupName").innerHTML = "<b> " + b.i$jscomp$5.Name + " </b>", document.getElementById("descriptionpop").innerHTML = "<b> [|] => \u00dd Ngh\u0129a <= [|]</b> <br> <i>" + b.i$jscomp$5.Meaning + "</i>", document.getElementById("imgne").src = "./Image/BilibiliTarot/" + b.i$jscomp$5.Type + "/" + b.i$jscomp$5.Image + ".png", document.getElementById("keyword").innerHTML = "<b> ||| => T\u1eeb Kho\u00e1 <= ||| </b> <br> <i>" + 
+        b.i$jscomp$5.Representation + "</i>", f.classList.add("active")) : (b.i$jscomp$5.Name.includes("Ng\u01b0\u1ee3c") ? b.cardImg.classList.add("slide") : b.cardImg.classList.add("flipped"), b.cardImg.src = "./Image/BilibiliTarot/" + b.i$jscomp$5.Type + "/" + b.i$jscomp$5.Image + ".png");
+      };
+    }(d), d.cardImg.alt = d.i$jscomp$5.Name, e.appendChild(d.cardImg), c.appendChild(e);
+  }
 }
-
-
 function JSON_Tarot() {
-    return {
-        "formations": {
-            "Tam Giác Thánh": {
-            "cards_num": 3,
-            "is_cut": false,
-            "representations": [
-                [
-                "tình huống",
-                "hành động",
-                "kết quả"
-                ],
-                [
-                "Trạng thái",
-                "Mong muốn",
-                "Hành động"
-                ]
-            ]
-            },
-            "Dòng Thời Gian": {
-            "cards_num": 3,
-            "is_cut": true,
-            "representations": [
-                [
-                "quá khứ",
-                "hiện tại",
-                "tương lai"
-                ]
-            ]
-            },
-            "Bốn Phần Tử": {
-            "cards_num": 4,
-            "is_cut": false,
-            "representations": [
-                [
-                "Lửa, tượng trưng cho hành động, lời khuyên về hành động",
-                "Khí, một biểu tượng của lời nói, các biện pháp đối phó bằng lời nói",
-                "Nước, tượng trưng cho tình cảm, thái độ tình cảm",
-                "Thổ, tượng trưng cho vật chất, chuẩn bị vật chất"
-                ]
-            ]
-            },
-            "Ngũ Bài Trận": {
-            "cards_num": 5,
-            "is_cut": true,
-            "representations": [
-                [
-                "vấn đề hiện tại hoặc chính",
-                "Ảnh hưởng trong quá khứ",
-                "tương lai",
-                "Lý do chính",
-                "Hậu quả có thể xảy ra của hành động"
-                ]
-            ]
-            },
-            "Chiếc Thập Giá Của Người Tự Do": {
-            "cards_num": 5,
-            "is_cut": false,
-            "representations": [
-                [
-                "Suy nghĩ của bên kia",
-                "suy nghĩ của bạn",
-                "Có vấn đề trong việc hòa hợp",
-                "Môi trường hiện tại của cả hai",
-                "Kết quả phát triển mối quan hệ"
-                ]
-            ]
-            },
-            "Trận Bài Hóa Mã Đậu": {
-            "cards_num": 6,
-            "is_cut": true,
-            "representations": [
-                [
-                "hiện trạng",
-                "Những tình huống có thể thấy trước",
-                "tình huống không thể đoán trước",
-                "sắp tới",
-                "kết quả",
-                "Suy nghĩ chủ quan của Querent"
-                ]
-            ]
-            },
-            "Hexagram Tarot Spread.": {
-            "cards_num": 6,
-            "is_cut": true,
-            "representations": [
-                [
-                "quá khứ",
-                "hiện tại",
-                "tương lai",
-                "biện pháp đối phó",
-                "môi trường",
-                "thái độ",
-                "kết quả dự đoán"
-                ]
-            ]
-            },
-            "Bình An Phiến Bài Trận": {
-            "cards_num": 4,
-            "is_cut": false,
-            "representations": [
-                [
-                "Hiện trạng mối quan hệ giữa các cá nhân",
-                "Nguyên nhân quen biết với đối phương",
-                "Sự phát triển mối quan hệ giữa hai bên",
-                "Kết luận về mối quan hệ giữa hai bên"
-                ]
-            ]
-            },
-            "Mảng sao Shadiruo": {
-            "cards_num": 6,
-            "is_cut": true,
-            "representations": [
-                [
-                "Cảm xúc của người hỏi",
-                "Câu hỏi của người hỏi",
-                "Các yếu tố ảnh hưởng đến vấn đề",
-                "Quá khứ khiến người hỏi vướng mắc với câu hỏi",
-                "Cần chú ý/xem xét",
-                "Kết quả có thể xảy ra"
-                ]
-            ]
-            }
-        },
-        "cards": {
-            "0": {
-            "name_cn": "愚者",
-            "name_en": "The Fool",
-            "type": "MajorArcana",
-            "meaning": {
-                "up": "Khởi đầu mới, phiêu lưu, tự tin, lạc quan, true thời điểm",
-                "down": "Không true lúc, liều lĩnh, cả tin, chấp nhận rủi ro"
-            },
-            "pic": "0-愚者"
-            },
-            "1": {
-            "name_cn": "魔术师",
-            "name_en": "The Magician",
-            "type": "MajorArcana",
-            "meaning": {
-                "up": "Sáng tạo, quyết đoán, đam mê, tiềm năng phát triển",
-                "down": "Thiếu sáng tạo, thiếu quyết đoán, tài năng tầm thường, kế hoạch kém"
-            },
-            "pic": "01-魔术师"
-            },
-            "2": {
-            "name_cn": "女祭司",
-            "name_en": "The High Priestess",
-            "type": "MajorArcana",
-            "meaning": {
-                "up": "Tiềm thức, Cái nhìn sâu sắc, Trí tuệ, Tinh thần nghiên cứu",
-                "down": "Thu mình, hướng nội, thần kinh, không lý trí"
-            },
-            "pic": "02-女祭司"
-            },
-            "3": {
-            "name_cn": "女皇",
-            "name_en": "The Empress",
-            "type": "MajorArcana",
-            "meaning": {
-                "up": "Làm mẹ, nữ tính, sức sống, sự chấp nhận",
-                "down": "Vấn đề sinh sản, sự bất an, nhạy cảm, bị ám ảnh bởi những chi tiết vụn vặt"
-            },
-            "pic": "03-女皇"
-            },
-            "4": {
-            "name_cn": "皇帝",
-            "name_en": "The Emperor",
-            "type": "MajorArcana",
-            "meaning": {
-                "up": "kiểm soát, ý chí, lãnh đạo, quyền lực, ảnh hưởng",
-                "down": "hỗn loạn, bướng bỉnh, chuyên chế, quản lý kém, không thực tế"
-            },
-            "pic": "04-皇帝"
-            },
-            "5": {
-            "name_cn": "教皇",
-            "name_en": "The Hierophant",
-            "type": "MajorArcana",
-            "meaning": {
-                "up": "đáng tin cậy, ngoan ngoãn, tuân thủ quy tắc",
-                "down": "mất lòng tin, tự mãn, thẩm quyền đặt câu hỏi, thuyết phục ác ý"
-            },
-            "pic": "05-教皇"
-            },
-            "6": {
-            "name_cn": "恋人",
-            "name_en": "The Lovers",
-            "type": "MajorArcana",
-            "meaning": {
-                "up": "Tình yêu, kết nối thể xác, mối quan hệ mới, khoảng thời gian vui vẻ, hỗ trợ lẫn nhau",
-                "down": "Tình dục quá mức, ngoại tình, thất hứa, lựa chọn tình cảm"
-            },
-            "pic": "06-恋人"
-            },
-            "7": {
-            "name_cn": "战车",
-            "name_en": "The Chariot",
-            "type": "MajorArcana",
-            "meaning": {
-                "up": "Hiệu quả cao, nắm bắt thời cơ, bền bỉ, quyết tâm, mạnh mẽ, vượt qua trở ngại",
-                "down": "mất kiểm soát, thất vọng, dùng đến bạo lực, bốc đồng"
-            },
-            "pic": "07-战车"
-            },
-            "8": {
-            "name_cn": "力量",
-            "name_en": "Strength",
-            "type": "MajorArcana",
-            "meaning": {
-                "up": "Dũng cảm, quyết tâm, vượt chướng ngại vật, can đảm",
-                "down": "Sợ hãi, năng lượng thấp, thiếu tự tin, hèn nhát"
-            },
-            "pic": "08-力量"
-            },
-            "9": {
-            "name_cn": "隐士",
-            "name_en": "The Hermit",
-            "type": "MajorArcana",
-            "meaning": {
-                "up": "Nội tâm, tự kiểm điểm, khám phá nội tâm, bình an",
-                "down": "đơn độc, bị cô lập, quá thận trọng, lảng tránh"
-            },
-            "pic": "09-隐士"
-            },
-            "10": {
-            "name_cn": "命运之轮",
-            "name_en": "The Wheel of Fortune",
-            "type": "MajorArcana",
-            "meaning": {
-                "up": "Nắm lấy cơ hội, cơ hội mới, may mắn đến, thay đổi đến",
-                "down": "xui xẻo, không true lúc, kế hoạch thất bại"
-            },
-            "pic": "10-命运之轮"
-            },
-            "11": {
-            "name_cn": "正义",
-            "name_en": "Justice",
-            "type": "MajorArcana",
-            "meaning": {
-                "up": "công bằng, chính trực, trung thực, công bằng và nhất quán",
-                "down": "mất cân bằng, định kiến, không trung thực, trùng lặp"
-            },
-            "pic": "11-正义"
-            },
-            "12": {
-            "name_cn": "倒吊人",
-            "name_en": "The Hanged Man",
-            "type": "MajorArcana",
-            "meaning": {
-                "up": "tiến thoái lưỡng nan, chấp nhận thử thách, ngụy trang ban phước lành, từ bỏ hành động để theo đuổi sự hiển linh",
-                "down": "Không sợ hy sinh, ích kỷ, phản kháng nội tâm, thiếu tầm nhìn"
-            },
-            "pic": "12-倒吊人"
-            },
-            "13": {
-            "name_cn": "死神",
-            "name_en": "Death",
-            "type": "MajorArcana",
-            "meaning": {
-                "up": "Mất mát, bị bỏ rơi, chia tay, cái chết, sự xuất hiện của những điều mới",
-                "down": "Làm sống lại, thay đổi suy nghĩ, thoát khỏi thực tại"
-            },
-            "pic": "13-死神"
-            },
-            "14": {
-            "name_cn": "节制",
-            "name_en": "Temperance",
-            "type": "MajorArcana",
-            "meaning": {
-                "up": "Cân bằng, Hài hòa, Chữa bệnh, Tiết độ",
-                "down": "Mất cân bằng, lạc điệu, ham mê khoái lạc, quá nuông chiều"
-            },
-            "pic": "14-节制"
-            },
-            "15": {
-            "name_cn": "恶魔",
-            "name_en": "The Devil",
-            "type": "MajorArcana",
-            "meaning": {
-                "up": "Ảnh hưởng tiêu cực, ham muốn tham lam, chủ meaning vật chất, cố chấp",
-                "down": "Thoát khỏi ràng buộc, từ chối cám dỗ, chữa lành nỗi đau, đối mặt với thực tế"
-            },
-            "pic": "15-恶魔"
-            },
-            "16": {
-            "name_cn": "高塔",
-            "name_en": "The Tower",
-            "type": "MajorArcana",
-            "meaning": {
-                "up": "Biến đổi sắc nét, biến động đột ngột, tái sinh sau khi hủy diệt, thay đổi chế độ",
-                "down": "Kiềm chế trước ranh giới, sợ thay đổi, đấu đá nội bộ, bình lặng trước cơn bão"
-            },
-            "pic": "16-高塔"
-            },
-            "17": {
-            "name_cn": "星星",
-            "name_en": "The Star",
-            "type": "MajorArcana",
-            "meaning": {
-                "up": "Hy vọng, tương lai tươi sáng, bình minh ló dạng",
-                "down": "Quá tham vọng, hay thay đổi, phản tác dụng, mất mục đích"
-            },
-            "pic": "17-星星"
-            },
-            "18": {
-            "name_cn": "月亮",
-            "name_en": "The Moon",
-            "type": "MajorArcana",
-            "meaning": {
-                "up": "Không thật, không thoải mái và lung lay, bối rối, dối trá",
-                "down": "Tình hình đang dần được cải thiện, những nghi ngờ đang mờ dần và nỗi sợ hãi đã được giải quyết"
-            },
-            "pic": "18-月亮"
-            },
-            "19": {
-            "name_cn": "太阳",
-            "name_en": "The Sun",
-            "type": "MajorArcana",
-            "meaning": {
-                "up": "Tràn đầy sức sống, tươi sáng và tích cực",
-                "down": "Chán nản, chán nản, bất lực, tiêu cực"
-            },
-            "pic": "19-太阳"
-            },
-            "20": {
-            "name_cn": "审判",
-            "name_en": "Judgement",
-            "type": "MajorArcana",
-            "meaning": {
-                "up": "Tài lộc tăng up, niềm vui hồi sinh, sức khỏe hồi phục",
-                "down": "chán nản, vượt qua trước khi nó bắt đầu, tự nghi ngờ, bác bỏ"
-            },
-            "pic": "20-审判"
-            },
-            "21": {
-            "name_cn": "世界",
-            "name_en": "The World",
-            "type": "MajorArcana",
-            "meaning": {
-                "up": "điều ước hoàn thành, thành công, đích đến",
-                "down": "Không thể cam kết, bất an với hiện trạng, bỏ cuộc giữa chừng, chấp nhận một cách mù quáng"
-            },
-            "pic": "21-世界"
-            },
-            "22": {
-            "name_cn": "宝剑ACE",
-            "name_en": "Ace of Swords",
-            "type": "Swords",
-            "meaning": {
-                "up": "Tích cực và xông xáo, nhạy bén, hợp lý, khởi đầu thành công",
-                "down": "Kích thích tranh cãi, hung hăng và tai hại, hống hách, ý tưởng bất công"
-            },
-            "pic": "宝剑-01"
-            },
-            "23": {
-            "name_cn": "宝剑2",
-            "name_en": "II of Swords",
-            "type": "Swords",
-            "meaning": {
-                "up": "ý kiến đối lập, thời điểm lựa chọn, bất đồng và xu hướng ngầm",
-                "down": "Có lựa chọn nhưng tin đồn và lừa dối xuất hiện, do dự dẫn đến bỏ lỡ cơ hội"
-            },
-            "pic": "宝剑-02"
-            },
-            "24": {
-            "name_cn": "宝剑3",
-            "name_en": "III of Swords",
-            "type": "Swords",
-            "meaning": {
-                "up": "Cảm thấy tổn thương, phiền muộn trong cuộc sống, tủi thân",
-                "down": "Khép kín tâm lý, rối loạn cảm xúc, trốn tránh, làm tổn thương những người xung quanh"
-            },
-            "pic": "宝剑-03"
-            },
-            "25": {
-            "name_cn": "宝剑4",
-            "name_en": "IV of Swords",
-            "type": "Swords",
-            "meaning": {
-                "up": "Bổ sung năng lượng, rút lui làm tiến, hành động chậm lại, chú ý tóm tắt",
-                "down": "hãy hành động ngay, nhảy vào cuộc sống, vội vàng khi chưa chuẩn bị đầy đủ"
-            },
-            "pic": "宝剑-04"
-            },
-            "26": {
-            "name_cn": "宝剑5",
-            "name_en": "V of Swords",
-            "type": "Swords",
-            "meaning": {
-                "up": "Mâu thuẫn, hại nhau vô cớ, thắng trận mà thua tình",
-                "down": "Tìm ra giải pháp, xung đột có khả năng được giải quyết và cả hai bên đều sẵn sàng hạ vũ khí"
-            },
-            "pic": "宝剑-05"
-            },
-            "27": {
-            "name_cn": "宝剑6",
-            "name_en": "VI of Swords",
-            "type": "Swords",
-            "meaning": {
-                "up": "Vết thương đã lâu không lành, hiện tại không có biện pháp tốt, sau này còn khó khăn hơn nữa",
-                "down": "mắc kẹt trong rắc rối, liều lĩnh giải quyết trong khi bỏ qua những vấn đề lớn hơn phía sau, cần sự giúp đỡ hoặc giải cứu từ người khác"
-            },
-            "pic": "宝剑-06"
-            },
-            "28": {
-            "name_cn": "宝剑7",
-            "name_en": "VII of Swords",
-            "type": "Swords",
-            "meaning": {
-                "up": "Sơ suất, thâm thù bất lộ, thủ đoạn phi thường hay tiểu xảo không dùng được lâu",
-                "down": "may mắn bất ngờ, kế hoạch xấu, lừa dối"
-            },
-            "pic": "宝剑-07"
-            },
-            "29": {
-            "name_cn": "宝剑8",
-            "name_en": "VIII of Swords",
-            "type": "Swords",
-            "meaning": {
-                "up": "Bị cô lập, bất lực, mắc kẹt trong hoàn cảnh khó khăn, mắc kẹt trong những suy nghĩ cản trở hành động",
-                "down": "Ra khỏi xiềng xích, thoát khỏi khủng hoảng, làm lại từ đầu"
-            },
-            "pic": "宝剑-08"
-            },
-            "30": {
-            "name_cn": "宝剑9",
-            "name_en": "IX of Swords",
-            "type": "Swords",
-            "meaning": {
-                "up": "Tinh thần sợ hãi, sợ hãi, lo lắng, điềm báo khó khăn phía trước",
-                "down": "Mọi thứ xoay chuyển, thoát khỏi rắc rối, sống trong quá khứ, đối mặt với thực tế"
-            },
-            "pic": "宝剑-09"
-            },
-            "31": {
-            "name_cn": "宝剑10",
-            "name_en": "X of Swords",
-            "type": "Swords",
-            "meaning": {
-                "up": "Tiến độ bị chặn nghiêm trọng, không lối thoát, vô vọng, cơ hội reset về 0",
-                "down": "Sự sống sót từ tuyệt vọng, hy vọng trở lại, những điều cực đoan sẽ đảo ngược"
-            },
-            "pic": "宝剑-10"
-            },
-            "32": {
-            "name_cn": "宝剑国王",
-            "name_en": "King of Swords",
-            "type": "Swords",
-            "meaning": {
-                "up": "Công lý, Quyền lực, Lãnh đạo, Bình tĩnh",
-                "down": "tư duy thiên lệch, áp đặt tư tưởng, cực đoan, vô nguyên tắc"
-            },
-            "pic": "宝剑国王"
-            },
-            "33": {
-            "name_cn": "宝剑王后",
-            "name_en": "Queen of Swords",
-            "type": "Swords",
-            "meaning": {
-                "up": "hợp lý, suy nghĩ nhanh, khoảng cách, công bằng",
-                "down": "bướng bỉnh, cực đoan, kiêu căng, độc đoán"
-            },
-            "pic": "宝剑王后"
-            },
-            "34": {
-            "name_cn": "宝剑骑士",
-            "name_en": "Knight of Swords",
-            "type": "Swords",
-            "meaning": {
-                "up": "Hành động dũng cảm, đầy đam mê",
-                "down": "kế hoạch kém, giàu trí tưởng tượng, thiếu kiên nhẫn, phát ban, tự phụ"
-            },
-            "pic": "宝剑骑士"
-            },
-            "35": {
-            "name_cn": "宝剑侍从",
-            "name_en": "Page of Swords",
-            "type": "Swords",
-            "meaning": {
-                "up": "Suy nghĩ khác biệt, sáng suốt, phán đoán thận trọng",
-                "down": "phân tích thông tin thiển cận, phản khí hậu, không được lọc"
-            },
-            "pic": "宝剑侍从"
-            },
-            "36": {
-            "name_cn": "权杖ACE",
-            "name_en": "Ace of Wands",
-            "type": "Wands",
-            "meaning": {
-                "up": "Khởi đầu mới, cơ hội mới, đam mê cháy bỏng, sáng tạo",
-                "down": "Hành động mới có khả năng thất bại cao hơn, khởi đầu kém, ý chí yếu"
-            },
-            "pic": "权杖-01"
-            },
-            "37": {
-            "name_cn": "权杖2",
-            "name_en": "II of Wands",
-            "type": "Wands",
-            "meaning": {
-                "up": "Nhìn về phía trước, up kế hoạch cho tương lai, lựa chọn giữa thói quen và hy vọng",
-                "down": "Do dự, hành động bị chặn, dành quá nhiều thời gian để lựa chọn"
-            },
-            "pic": "权杖-02"
-            },
-            "38": {
-            "name_cn": "权杖3",
-            "name_en": "II of Wands",
-            "type": "Wands",
-            "meaning": {
-                "up": "Thời điểm thích hợp để khám phá, phù hợp với tâm hồn, khả năng lãnh đạo, sự thống trị",
-                "down": "Hợp tác kém, thiếu lãnh đạo, bất hòa trong nhóm"
-            },
-            "pic": "权杖-03"
-            },
-            "39": {
-            "name_cn": "权杖4",
-            "name_en": "IV of Wands",
-            "type": "Wands",
-            "meaning": {
-                "up": "Hòa bình và thịnh vượng, mối quan hệ ổn định, học hành ổn định hoặc phát triển nghề nghiệp",
-                "down": "Mất cân bằng, nền tảng bị phá vỡ, các mối quan hệ nghèo nàn, thu hoạch kém"
-            },
-            "pic": "权杖-04"
-            },
-            "40": {
-            "name_cn": "权杖5",
-            "name_en": "V of Wands",
-            "type": "Wands",
-            "meaning": {
-                "up": "Cạnh tranh, xung đột, mâu thuẫn nội tâm, thiếu đồng thuận",
-                "down": "Cạnh tranh không lành mạnh, đồng thuận"
-            },
-            "pic": "权杖-05"
-            },
-            "41": {
-            "name_cn": "权杖6",
-            "name_en": "VI of Wands",
-            "type": "Wands",
-            "meaning": {
-                "hướng up": "Chiến thắng, thành công được đền đáp, suôn sẻ, đầy hy vọng",
-                "down": "thành công ngắn ngủi, tự mãn, mất tự tin"
-            },
-            "pic": "权杖-06"
-            },
-            "42": {
-            "name_cn": "权杖7",
-            "name_en": "VII of Wands",
-            "type": "Wands",
-            "meaning": {
-                "up": "Niềm tin mãnh liệt, thái độ kiên định, nội tại cân bằng và quyết tâm, tin tưởng vào quan điểm và khả năng của bản thân",
-                "down": "Nghi ngờ về khả năng của một người, thiếu tự tin và lái xe, thiếu ý chí"
-            },
-            "pic": "权杖-07"
-            },
-            "43": {
-            "name_cn": "权杖8",
-            "name_en": "VIII of Wands",
-            "type": "Wands",
-            "meaning": {
-                "up": "Mục tiêu rõ ràng, nỗ lực mạnh mẽ, tiến bộ nhanh chóng, rèn luyện trong khi sắt còn nóng, đi du lịch",
-                "down": "Đi sai hướng, hành động không nhất quán, bốc đồng, chậm trễ trong kế hoạch"
-            },
-            "pic": "权杖-08"
-            },
-            "44": {
-            "name_cn": "权杖9",
-            "name_en": "IX of Wands",
-            "type": "Wands",
-            "meaning": {
-                "up": "Chuẩn bị khó khăn, tự vệ, đĩnh đạc, đối kháng lực lượng",
-                "down": "Nghịch cảnh, mất tự tin, tinh thần thấp"
-            },
-            "pic": "权杖-09"
-            },
-            "45": {
-            "name_cn": "权杖10",
-            "name_en": "X of Wands",
-            "type": "Wands",
-            "meaning": {
-                "up": "Tinh thần trách nhiệm, nhiệt huyết bên trong, làm việc quá sức, quá sức",
-                "down": "Căng thẳng không thể chịu đựng được, đánh giá quá cao khả năng của bản thân, tự điều chỉnh bản thân, trốn tránh trách nhiệm"
-            },
-            "pic": "权杖-10"
-            },
-            "46": {
-            "name_cn": "权杖国王",
-            "name_en": "King of Wands",
-            "type": "Wands",
-            "meaning": {
-                "up": "Hành động mạnh mẽ, thái độ rõ ràng, lập chiến lược, lãnh đạo lôi cuốn",
-                "down": "Tùy tiện, khắc nghiệt, kiêu ngạo"
-            },
-            "pic": "权杖国王"
-            },
-            "47": {
-            "name_cn": "权杖王后",
-            "name_en": "Queen of Wands",
-            "type": "Wands",
-            "meaning": {
-                "up": "Cả cứng rắn và mềm mại, nhiệt tình và dịu dàng, lạc quan và sôi nổi",
-                "down": "cảm xúc, sự tự tin thấp, sự nhiệt tình suy giảm, sự cô đơn"
-            },
-            "pic": "权杖王后"
-            },
-            "48": {
-            "name_cn": "权杖骑士",
-            "name_en": "Knight of Wands",
-            "type": "Wands",
-            "meaning": {
-                "up": "di động, năng lượng, hành trình mới, thay đổi không thỏa mãn so với hiện trạng",
-                "down": "liều lĩnh, liều lĩnh, chậm trễ trong hành động, không có kế hoạch, thiếu kiên nhẫn"
-            },
-            "pic": "权杖骑士"
-            },
-            "49": {
-            "name_cn": "权杖侍从",
-            "name_en": "Page of Wands",
-            "type": "Wands",
-            "meaning": {
-                "up": "Kế hoạch mới bắt đầu, thử điều mới, tin vui đến",
-                "down": "Ba phút hăng hái, lập kế hoạch quá lâu dẫn đến tiến độ kém, tin xấu"
-            },
-            "pic": "权杖侍从"
-            },
-            "50": {
-            "name_cn": "圣杯ACE",
-            "name_en": "Ace of Cups",
-            "type": "Cups",
-            "meaning": {
-                "up": "Tình yêu mới hoặc tình bạn mới, niềm vui tinh thần, sự hài lòng về tinh thần",
-                "down": "Thiếu cảm xúc, thiếu giao tiếp, đạo đức giả"
-            },
-            "pic": "圣杯-01"
-            },
-            "51": {
-            "name_cn": "圣杯2",
-            "name_en": "II of Cups",
-            "type": "Cups",
-            "meaning": {
-                "up": "Mối quan hệ hài hòa và bình đẳng, tình yêu lẫn nhau giữa những người yêu nhau, hợp tác suôn sẻ",
-                "down": "Mối quan hệ giới có xu hướng cực đoan, chia rẽ tình cảm, bất bình đẳng, xung đột"
-            },
-            "pic": "圣杯-02"
-            },
-            "52": {
-            "name_cn": "圣杯3",
-            "name_en": "III of Cups",
-            "type": "Cups",
-            "meaning": {
-                "up": "Hợp tác đạt kết quả, phấn đấu đạt kết quả",
-                "down": "Cực vui sinh sầu, không đồng lòng, đội ngũ bất hòa"
-            },
-            "pic": "圣杯-03"
-            },
-            "53": {
-            "name_cn": "圣杯4",
-            "name_en": "IV of Cups",
-            "type": "Cups",
-            "meaning": {
-                "up": "Mệt mỏi, thiếu động lực, không còn hứng thú với mọi thứ, tâm trạng chán nản",
-                "down": "Mối quan hệ mới, hành động, hết thủy triều"
-            },
-            "pic": "圣杯-04"
-            },
-            "54": {
-            "name_cn": "圣杯5",
-            "name_en": "V of Cups",
-            "type": "Cups",
-            "meaning": {
-                "up": "Quá để ý đến những thứ đã mất, tự trách mình, thiếu tự tin, từ chối sự giúp đỡ từ bên ngoài do xa cách",
-                "down": "Ra khỏi đau buồn, phá thuyền, trở lại"
-            },
-            "pic": "圣杯-05"
-            },
-            "55": {
-            "name_cn": "圣杯6",
-            "name_en": "VI of Cups",
-            "type": "Cups",
-            "meaning": {
-                "up": "Nỗi nhớ, kỉ niệm đẹp, cảm xúc trong sáng, niềm vui giản đơn, an ninh",
-                "down": "Nghiện quá khứ, ký ức tồi tệ, không muốn bị ràng buộc"
-            },
-            "pic": "圣杯-06"
-            },
-            "56": {
-            "name_cn": "圣杯7",
-            "name_en": "VII of Cups",
-            "type": "Cups",
-            "meaning": {
-                "up": "Những tưởng tượng viển vông, những mối quan hệ viển vông, những cảm xúc hão huyền, cuộc sống bộn bề",
-                "down": "Nhìn rõ thực tế, không hài lòng với những thứ vật chất và đưa ra những lựa chọn sáng suốt"
-            },
-            "pic": "圣杯-07"
-            },
-            "57": {
-            "name_cn": "圣杯8",
-            "name_en": "VIII of Cups",
-            "type": "Cups",
-            "meaning": {
-                "up": "Lìa bỏ người và vật quen thuộc, không ham thành tích hiện tại, suy xét mà hành động",
-                "down": "Do dự, mất kế hoạch tương lai, hiện trạng"
-            },
-            "pic": "圣杯-08"
-            },
-            "58": {
-            "name_cn": "圣杯9",
-            "name_en": "IX of Cups",
-            "type": "Cups",
-            "meaning": {
-                "up": "Mong muốn rất có thể thành hiện thực, toại nguyện hiện trạng, giàu có về vật chất và tinh thần",
-                "down": "Mất mát vật chất, thiếu kiềm chế, mưu cầu hạnh phúc cao hơn"
-            },
-            "pic": "圣杯-09"
-            },
-            "59": {
-            "name_cn": "圣杯10",
-            "name_en": "X of Cups",
-            "type": "Cups",
-            "meaning": {
-                "up": "Đội ngũ hài hòa, mối quan hệ giữa các cá nhân hài hòa, gia đình hòa thuận",
-                "down": "Đội bất hòa, bất hòa giữa các cá nhân, xung đột"
-            },
-            "pic": "圣杯-10"
-            },
-            "60": {
-            "name_cn": "圣杯国王",
-            "name_en": "King of Cups",
-            "type": "Cups",
-            "meaning": {
-                "up": "Sáng tạo, quyền quyết định, chuyên môn trong một lĩnh vực nhất định, chia sẻ hoặc trao đổi có điều kiện",
-                "down": "sự trùng lặp, động cơ thầm kín, không tin tưởng vào khả năng tự sáng tạo"
-            },
-            "pic": "圣杯国王"
-            },
-            "61": {
-            "name_cn": "圣杯王后",
-            "name_en": "Queen of Cups",
-            "type": "Cups",
-            "meaning": {
-                "up": "Cảm xúc phong phú và tinh tế, nhấn mạnh trực giác và suy nghĩ cảm tính",
-                "down": "Quá xúc động, thiếu chú ý, bị cô lập về tinh thần"
-            },
-            "pic": "圣杯王后"
-            },
-            "62": {
-            "name_cn": "圣杯骑士",
-            "name_en": "Knight of Cups",
-            "type": "Cups",
-            "meaning": {
-                "up": "Quyết định giữa chờ đợi và hành động, cơ hội mới đang đến",
-                "down": "Sử dụng cảm xúc không đủ, chờ đợi thụ động, hành động sai theo cảm xúc"
-            },
-            "pic": "圣杯骑士"
-            },
-            "63": {
-            "name_cn": "圣杯侍从",
-            "name_en": "Page of Cups",
-            "type": "Cups",
-            "meaning": {
-                "up": "Thể hiện cảm xúc và cống hiến, sắp có tin vui, theo đuổi tình cảm nhưng chưa trưởng thành",
-                "down": "Theo đuổi tình cảm nhưng sai lầm, cảm xúc mơ hồ, quá gắn bó với cảm xúc hoặc vấn đề"
-            },
-            "pic": "圣杯侍从"
-            },
-            "64": {
-            "name_cn": "星币ACE",
-            "name_en": "Ace of Pentacles",
-            "type": "Pentacles",
-            "meaning": {
-                "up": "Cơ hội mới, phát triển thuận lợi, lợi nhuận vật chất",
-                "down": "Tiền mất, kém phát triển, vật chất dồi dào nhưng trống rỗng tinh thần"
-            },
-            "pic": "星币-01"
-            },
-            "65": {
-            "name_cn": "星币2",
-            "name_en": "II of Pentacles",
-            "type": "Pentacles",
-            "meaning": {
-                "up": "Cán cân thanh toán, luân chuyển của cải, biến động và cân bằng cuộc sống",
-                "down": "Sử dụng tiền quá mức, khó duy trì sự cân bằng, đối mặt với tổn thất vật chất"
-            },
-            "pic": "星币-02"
-            },
-            "66": {
-            "name_cn": "星币3",
-            "name_en": "III of Pentacles",
-            "type": "Pentacles",
-            "meaning": {
-                "up": "Làm việc theo nhóm, giao tiếp trôi chảy, tay nghề cao, mối quan hệ ổn định",
-                "down": "Phân công lao động không rõ ràng, quan hệ giữa người với người không hài hòa, trình độ chuyên môn còn thiếu"
-            },
-            "pic": "星币-03"
-            },
-            "67": {
-            "name_cn": "星币4",
-            "name_en": "IV of Pentacles",
-            "type": "Pentacles",
-            "meaning": {
-                "up": "Tận tâm, bủn xỉn, bủn xỉn, của cải trì trệ, thiếu thốn tinh thần",
-                "down": "Sống ngoài khả năng của mình, ngông cuồng, ngông cuồng"
-            },
-            "pic": "星币-04"
-            },
-            "68": {
-            "name_cn": "星币5",
-            "name_en": "V of Pentacles",
-            "type": "Pentacles",
-            "meaning": {
-                "up": "Khủng hoảng kinh tế, cùng khổ, khó khăn",
-                "down": "Vấn đề nơi ở, cuộc sống bộn bề, ly lao và nuốt chửng"
-            },
-            "pic": "星币-05"
-            },
-            "69": {
-            "name_cn": "星币6",
-            "name_en": "VI of Pentacles",
-            "type": "Pentacles",
-            "meaning": {
-                "up": "hào phóng, cho đi, có đi có lại, ổn định về tài chính và lạc quan",
-                "down": "ích kỷ, mưu mô, mắc nợ, hoặc mắc nợ người khác"
-            },
-            "pic": "星币-06"
-            },
-            "70": {
-            "name_cn": "星币7",
-            "name_en": "VII of Pentacles",
-            "type": "Pentacles",
-            "meaning": {
-                "up": "Chờ thời gian chín muồi, đạt được kết quả theo từng giai đoạn và nghĩ về kế hoạch",
-                "down": "Nỗ lực gấp đôi, nỗ lực một nửa, đầu tư thất bại, do dự"
-            },
-            "pic": "星币-07"
-            },
-            "71": {
-            "name_cn": "星币8",
-            "name_en": "VIII of Pentacles",
-            "type": "Pentacles",
-            "meaning": {
-                "up": "Làm việc tập trung, lành nghề, năng nổ, có tổ chức",
-                "down": "Mất tập trung, công việc buồn tẻ, hiệu quả công việc kém"
-            },
-            "pic": "星币-08"
-            },
-            "72": {
-            "name_cn": "星币9",
-            "name_en": "IX of Pentacles",
-            "type": "Pentacles",
-            "meaning": {
-                "up": "Sự nghiệp thăng tiến, tiếp tục tạo điều kiện thuận lợi cho bản thân, biết tiết kiệm chi tiêu",
-                "down": "Mất của cải, bỏ tiền theo đuổi cuộc sống, thiếu khả năng quản lý"
-            },
-            "pic": "星币-09"
-            },
-            "73": {
-            "name_cn": "星币10",
-            "name_en": "X of Pentacles",
-            "type": "Pentacles",
-            "meaning": {
-                "up": "Đội hòa hợp, đối tác kinh doanh thành công, gia đình hòa thuận",
-                "down": "Đội bất hòa, hợp tác đầu tư bị đình chỉ, gia đình bất hòa"
-            },
-            "pic": "星币-10"
-            },
-            "74": {
-            "name_cn": "星币国王",
-            "name_en": "King of Pentacles",
-            "type": "Pentacles",
-            "meaning": {
-                "up": "Người thành đạt, trọng vật chất, giỏi quản lý, đáng tin cậy, trưởng thành và thực dụng",
-                "down": "Thiếu nhạy bén về kinh tế, thiếu niềm tin, quản lý yếu kém, mất niềm tin"
-            },
-            "pic": "星币国王"
-            },
-            "75": {
-            "name_cn": "星币王后",
-            "name_en": "Queen of Pentacles",
-            "type": "Pentacles",
-            "meaning": {
-                "up": "trưởng thành, thịnh vượng, đáng tin cậy, ấm áp, yên bình",
-                "down": "sự phù phiếm, cuộc sống hào nhoáng, thái độ tồi tệ"
-            },
-            "pic": "星币王后"
-            },
-            "76": {
-            "name_cn": "星币骑士",
-            "name_en": "Knight of Pentacles",
-            "type": "Pentacles",
-            "meaning": {
-                "up": "Chú trọng hiệu quả, tinh thần trách nhiệm, cẩn trọng, có kế hoạch",
-                "down": "Tư duy buông thả, bảo thủ, trì trệ phát triển"
-            },
-            "pic": "星币骑士"
-            },
-            "77": {
-            "name_cn": "星币侍从",
-            "name_en": "Page of Pentacles",
-            "type": "Pentacles",
-            "meaning": {
-                "up": "giỏi suy nghĩ và học hỏi, ham học hỏi, tin tức tốt liên quan đến kiến thức hoặc công việc nghiên cứu",
-                "down": "Kiến thức kém, thiếu tự giác, thất thoát tài chính, tầm nhìn hạn hẹp"
-            },
-            "pic": "星币侍从"
-            }
-        }
-    }
+  return {formations:{"Tam Gi\u00e1c Th\u00e1nh":{cards_num:3, is_cut:!1, representations:[["t\u00ecnh hu\u1ed1ng", "h\u00e0nh \u0111\u1ed9ng", "k\u1ebft qu\u1ea3"], ["Tr\u1ea1ng th\u00e1i", "Mong mu\u1ed1n", "H\u00e0nh \u0111\u1ed9ng"]]}, "D\u00f2ng Th\u1eddi Gian":{cards_num:3, is_cut:!0, representations:[["qu\u00e1 kh\u1ee9", "hi\u1ec7n t\u1ea1i", "t\u01b0\u01a1ng lai"]]}, "B\u1ed1n Ph\u1ea7n T\u1eed":{cards_num:4, is_cut:!1, representations:[["L\u1eeda, t\u01b0\u1ee3ng tr\u01b0ng cho h\u00e0nh \u0111\u1ed9ng, l\u1eddi khuy\u00ean v\u1ec1 h\u00e0nh \u0111\u1ed9ng", 
+  "Kh\u00ed, m\u1ed9t bi\u1ec3u t\u01b0\u1ee3ng c\u1ee7a l\u1eddi n\u00f3i, c\u00e1c bi\u1ec7n ph\u00e1p \u0111\u1ed1i ph\u00f3 b\u1eb1ng l\u1eddi n\u00f3i", "N\u01b0\u1edbc, t\u01b0\u1ee3ng tr\u01b0ng cho t\u00ecnh c\u1ea3m, th\u00e1i \u0111\u1ed9 t\u00ecnh c\u1ea3m", "Th\u1ed5, t\u01b0\u1ee3ng tr\u01b0ng cho v\u1eadt ch\u1ea5t, chu\u1ea9n b\u1ecb v\u1eadt ch\u1ea5t"]]}, "Ng\u0169 B\u00e0i Tr\u1eadn":{cards_num:5, is_cut:!0, representations:[["v\u1ea5n \u0111\u1ec1 hi\u1ec7n t\u1ea1i ho\u1eb7c ch\u00ednh", 
+  "\u1ea2nh h\u01b0\u1edfng trong qu\u00e1 kh\u1ee9", "t\u01b0\u01a1ng lai", "L\u00fd do ch\u00ednh", "H\u1eadu qu\u1ea3 c\u00f3 th\u1ec3 x\u1ea3y ra c\u1ee7a h\u00e0nh \u0111\u1ed9ng"]]}, "Chi\u1ebfc Th\u1eadp Gi\u00e1 C\u1ee7a Ng\u01b0\u1eddi T\u1ef1 Do":{cards_num:5, is_cut:!1, representations:[["Suy ngh\u0129 c\u1ee7a b\u00ean kia", "suy ngh\u0129 c\u1ee7a b\u1ea1n", "C\u00f3 v\u1ea5n \u0111\u1ec1 trong vi\u1ec7c h\u00f2a h\u1ee3p", "M\u00f4i tr\u01b0\u1eddng hi\u1ec7n t\u1ea1i c\u1ee7a c\u1ea3 hai", 
+  "K\u1ebft qu\u1ea3 ph\u00e1t tri\u1ec3n m\u1ed1i quan h\u1ec7"]]}, "Tr\u1eadn B\u00e0i H\u00f3a M\u00e3 \u0110\u1eadu":{cards_num:6, is_cut:!0, representations:["hi\u1ec7n tr\u1ea1ng;Nh\u1eefng t\u00ecnh hu\u1ed1ng c\u00f3 th\u1ec3 th\u1ea5y tr\u01b0\u1edbc;t\u00ecnh hu\u1ed1ng kh\u00f4ng th\u1ec3 \u0111o\u00e1n tr\u01b0\u1edbc;s\u1eafp t\u1edbi;k\u1ebft qu\u1ea3;Suy ngh\u0129 ch\u1ee7 quan c\u1ee7a Querent".split(";")]}, "Hexagram Tarot Spread.":{cards_num:6, is_cut:!0, representations:["qu\u00e1 kh\u1ee9;hi\u1ec7n t\u1ea1i;t\u01b0\u01a1ng lai;bi\u1ec7n ph\u00e1p \u0111\u1ed1i ph\u00f3;m\u00f4i tr\u01b0\u1eddng;th\u00e1i \u0111\u1ed9;k\u1ebft qu\u1ea3 d\u1ef1 \u0111o\u00e1n".split(";")]}, 
+  "B\u00ecnh An Phi\u1ebfn B\u00e0i Tr\u1eadn":{cards_num:4, is_cut:!1, representations:[["Hi\u1ec7n tr\u1ea1ng m\u1ed1i quan h\u1ec7 gi\u1eefa c\u00e1c c\u00e1 nh\u00e2n", "Nguy\u00ean nh\u00e2n quen bi\u1ebft v\u1edbi \u0111\u1ed1i ph\u01b0\u01a1ng", "S\u1ef1 ph\u00e1t tri\u1ec3n m\u1ed1i quan h\u1ec7 gi\u1eefa hai b\u00ean", "K\u1ebft lu\u1eadn v\u1ec1 m\u1ed1i quan h\u1ec7 gi\u1eefa hai b\u00ean"]]}, "M\u1ea3ng sao Shadiruo":{cards_num:6, is_cut:!0, representations:["C\u1ea3m x\u00fac c\u1ee7a ng\u01b0\u1eddi h\u1ecfi;C\u00e2u h\u1ecfi c\u1ee7a ng\u01b0\u1eddi h\u1ecfi;C\u00e1c y\u1ebfu t\u1ed1 \u1ea3nh h\u01b0\u1edfng \u0111\u1ebfn v\u1ea5n \u0111\u1ec1;Qu\u00e1 kh\u1ee9 khi\u1ebfn ng\u01b0\u1eddi h\u1ecfi v\u01b0\u1edbng m\u1eafc v\u1edbi c\u00e2u h\u1ecfi;C\u1ea7n ch\u00fa \u00fd/xem x\u00e9t;K\u1ebft qu\u1ea3 c\u00f3 th\u1ec3 x\u1ea3y ra".split(";")]}}, 
+  cards:{0:{name_cn:"\u611a\u8005", name_en:"The Fool", type:"MajorArcana", meaning:{up:"Kh\u1edfi \u0111\u1ea7u m\u1edbi, phi\u00eau l\u01b0u, t\u1ef1 tin, l\u1ea1c quan, true th\u1eddi \u0111i\u1ec3m", down:"Kh\u00f4ng true l\u00fac, li\u1ec1u l\u0129nh, c\u1ea3 tin, ch\u1ea5p nh\u1eadn r\u1ee7i ro"}, pic:"0-\u611a\u8005"}, 1:{name_cn:"\u9b54\u672f\u5e08", name_en:"The Magician", type:"MajorArcana", meaning:{up:"S\u00e1ng t\u1ea1o, quy\u1ebft \u0111o\u00e1n, \u0111am m\u00ea, ti\u1ec1m n\u0103ng ph\u00e1t tri\u1ec3n", 
+  down:"Thi\u1ebfu s\u00e1ng t\u1ea1o, thi\u1ebfu quy\u1ebft \u0111o\u00e1n, t\u00e0i n\u0103ng t\u1ea7m th\u01b0\u1eddng, k\u1ebf ho\u1ea1ch k\u00e9m"}, pic:"01-\u9b54\u672f\u5e08"}, 2:{name_cn:"\u5973\u796d\u53f8", name_en:"The High Priestess", type:"MajorArcana", meaning:{up:"Ti\u1ec1m th\u1ee9c, C\u00e1i nh\u00ecn s\u00e2u s\u1eafc, Tr\u00ed tu\u1ec7, Tinh th\u1ea7n nghi\u00ean c\u1ee9u", down:"Thu m\u00ecnh, h\u01b0\u1edbng n\u1ed9i, th\u1ea7n kinh, kh\u00f4ng l\u00fd tr\u00ed"}, pic:"02-\u5973\u796d\u53f8"}, 
+  3:{name_cn:"\u5973\u7687", name_en:"The Empress", type:"MajorArcana", meaning:{up:"L\u00e0m m\u1eb9, n\u1eef t\u00ednh, s\u1ee9c s\u1ed1ng, s\u1ef1 ch\u1ea5p nh\u1eadn", down:"V\u1ea5n \u0111\u1ec1 sinh s\u1ea3n, s\u1ef1 b\u1ea5t an, nh\u1ea1y c\u1ea3m, b\u1ecb \u00e1m \u1ea3nh b\u1edfi nh\u1eefng chi ti\u1ebft v\u1ee5n v\u1eb7t"}, pic:"03-\u5973\u7687"}, 4:{name_cn:"\u7687\u5e1d", name_en:"The Emperor", type:"MajorArcana", meaning:{up:"ki\u1ec3m so\u00e1t, \u00fd ch\u00ed, l\u00e3nh \u0111\u1ea1o, quy\u1ec1n l\u1ef1c, \u1ea3nh h\u01b0\u1edfng", 
+  down:"h\u1ed7n lo\u1ea1n, b\u01b0\u1edbng b\u1ec9nh, chuy\u00ean ch\u1ebf, qu\u1ea3n l\u00fd k\u00e9m, kh\u00f4ng th\u1ef1c t\u1ebf"}, pic:"04-\u7687\u5e1d"}, 5:{name_cn:"\u6559\u7687", name_en:"The Hierophant", type:"MajorArcana", meaning:{up:"\u0111\u00e1ng tin c\u1eady, ngoan ngo\u00e3n, tu\u00e2n th\u1ee7 quy t\u1eafc", down:"m\u1ea5t l\u00f2ng tin, t\u1ef1 m\u00e3n, th\u1ea9m quy\u1ec1n \u0111\u1eb7t c\u00e2u h\u1ecfi, thuy\u1ebft ph\u1ee5c \u00e1c \u00fd"}, pic:"05-\u6559\u7687"}, 6:{name_cn:"\u604b\u4eba", 
+  name_en:"The Lovers", type:"MajorArcana", meaning:{up:"T\u00ecnh y\u00eau, k\u1ebft n\u1ed1i th\u1ec3 x\u00e1c, m\u1ed1i quan h\u1ec7 m\u1edbi, kho\u1ea3ng th\u1eddi gian vui v\u1ebb, h\u1ed7 tr\u1ee3 l\u1eabn nhau", down:"T\u00ecnh d\u1ee5c qu\u00e1 m\u1ee9c, ngo\u1ea1i t\u00ecnh, th\u1ea5t h\u1ee9a, l\u1ef1a ch\u1ecdn t\u00ecnh c\u1ea3m"}, pic:"06-\u604b\u4eba"}, 7:{name_cn:"\u6218\u8f66", name_en:"The Chariot", type:"MajorArcana", meaning:{up:"Hi\u1ec7u qu\u1ea3 cao, n\u1eafm b\u1eaft th\u1eddi c\u01a1, b\u1ec1n b\u1ec9, quy\u1ebft t\u00e2m, m\u1ea1nh m\u1ebd, v\u01b0\u1ee3t qua tr\u1edf ng\u1ea1i", 
+  down:"m\u1ea5t ki\u1ec3m so\u00e1t, th\u1ea5t v\u1ecdng, d\u00f9ng \u0111\u1ebfn b\u1ea1o l\u1ef1c, b\u1ed1c \u0111\u1ed3ng"}, pic:"07-\u6218\u8f66"}, 8:{name_cn:"\u529b\u91cf", name_en:"Strength", type:"MajorArcana", meaning:{up:"D\u0169ng c\u1ea3m, quy\u1ebft t\u00e2m, v\u01b0\u1ee3t ch\u01b0\u1edbng ng\u1ea1i v\u1eadt, can \u0111\u1ea3m", down:"S\u1ee3 h\u00e3i, n\u0103ng l\u01b0\u1ee3ng th\u1ea5p, thi\u1ebfu t\u1ef1 tin, h\u00e8n nh\u00e1t"}, pic:"08-\u529b\u91cf"}, 9:{name_cn:"\u9690\u58eb", 
+  name_en:"The Hermit", type:"MajorArcana", meaning:{up:"N\u1ed9i t\u00e2m, t\u1ef1 ki\u1ec3m \u0111i\u1ec3m, kh\u00e1m ph\u00e1 n\u1ed9i t\u00e2m, b\u00ecnh an", down:"\u0111\u01a1n \u0111\u1ed9c, b\u1ecb c\u00f4 l\u1eadp, qu\u00e1 th\u1eadn tr\u1ecdng, l\u1ea3ng tr\u00e1nh"}, pic:"09-\u9690\u58eb"}, 10:{name_cn:"\u547d\u8fd0\u4e4b\u8f6e", name_en:"The Wheel of Fortune", type:"MajorArcana", meaning:{up:"N\u1eafm l\u1ea5y c\u01a1 h\u1ed9i, c\u01a1 h\u1ed9i m\u1edbi, may m\u1eafn \u0111\u1ebfn, thay \u0111\u1ed5i \u0111\u1ebfn", 
+  down:"xui x\u1ebbo, kh\u00f4ng true l\u00fac, k\u1ebf ho\u1ea1ch th\u1ea5t b\u1ea1i"}, pic:"10-\u547d\u8fd0\u4e4b\u8f6e"}, 11:{name_cn:"\u6b63\u4e49", name_en:"Justice", type:"MajorArcana", meaning:{up:"c\u00f4ng b\u1eb1ng, ch\u00ednh tr\u1ef1c, trung th\u1ef1c, c\u00f4ng b\u1eb1ng v\u00e0 nh\u1ea5t qu\u00e1n", down:"m\u1ea5t c\u00e2n b\u1eb1ng, \u0111\u1ecbnh ki\u1ebfn, kh\u00f4ng trung th\u1ef1c, tr\u00f9ng l\u1eb7p"}, pic:"11-\u6b63\u4e49"}, 12:{name_cn:"\u5012\u540a\u4eba", name_en:"The Hanged Man", 
+  type:"MajorArcana", meaning:{up:"ti\u1ebfn tho\u00e1i l\u01b0\u1ee1ng nan, ch\u1ea5p nh\u1eadn th\u1eed th\u00e1ch, ng\u1ee5y trang ban ph\u01b0\u1edbc l\u00e0nh, t\u1eeb b\u1ecf h\u00e0nh \u0111\u1ed9ng \u0111\u1ec3 theo \u0111u\u1ed5i s\u1ef1 hi\u1ec3n linh", down:"Kh\u00f4ng s\u1ee3 hy sinh, \u00edch k\u1ef7, ph\u1ea3n kh\u00e1ng n\u1ed9i t\u00e2m, thi\u1ebfu t\u1ea7m nh\u00ecn"}, pic:"12-\u5012\u540a\u4eba"}, 13:{name_cn:"\u6b7b\u795e", name_en:"Death", type:"MajorArcana", meaning:{up:"M\u1ea5t m\u00e1t, b\u1ecb b\u1ecf r\u01a1i, chia tay, c\u00e1i ch\u1ebft, s\u1ef1 xu\u1ea5t hi\u1ec7n c\u1ee7a nh\u1eefng \u0111i\u1ec1u m\u1edbi", 
+  down:"L\u00e0m s\u1ed1ng l\u1ea1i, thay \u0111\u1ed5i suy ngh\u0129, tho\u00e1t kh\u1ecfi th\u1ef1c t\u1ea1i"}, pic:"13-\u6b7b\u795e"}, 14:{name_cn:"\u8282\u5236", name_en:"Temperance", type:"MajorArcana", meaning:{up:"C\u00e2n b\u1eb1ng, H\u00e0i h\u00f2a, Ch\u1eefa b\u1ec7nh, Ti\u1ebft \u0111\u1ed9", down:"M\u1ea5t c\u00e2n b\u1eb1ng, l\u1ea1c \u0111i\u1ec7u, ham m\u00ea kho\u00e1i l\u1ea1c, qu\u00e1 nu\u00f4ng chi\u1ec1u"}, pic:"14-\u8282\u5236"}, 15:{name_cn:"\u6076\u9b54", name_en:"The Devil", 
+  type:"MajorArcana", meaning:{up:"\u1ea2nh h\u01b0\u1edfng ti\u00eau c\u1ef1c, ham mu\u1ed1n tham lam, ch\u1ee7 meaning v\u1eadt ch\u1ea5t, c\u1ed1 ch\u1ea5p", down:"Tho\u00e1t kh\u1ecfi r\u00e0ng bu\u1ed9c, t\u1eeb ch\u1ed1i c\u00e1m d\u1ed7, ch\u1eefa l\u00e0nh n\u1ed7i \u0111au, \u0111\u1ed1i m\u1eb7t v\u1edbi th\u1ef1c t\u1ebf"}, pic:"15-\u6076\u9b54"}, 16:{name_cn:"\u9ad8\u5854", name_en:"The Tower", type:"MajorArcana", meaning:{up:"Bi\u1ebfn \u0111\u1ed5i s\u1eafc n\u00e9t, bi\u1ebfn \u0111\u1ed9ng \u0111\u1ed9t ng\u1ed9t, t\u00e1i sinh sau khi h\u1ee7y di\u1ec7t, thay \u0111\u1ed5i ch\u1ebf \u0111\u1ed9", 
+  down:"Ki\u1ec1m ch\u1ebf tr\u01b0\u1edbc ranh gi\u1edbi, s\u1ee3 thay \u0111\u1ed5i, \u0111\u1ea5u \u0111\u00e1 n\u1ed9i b\u1ed9, b\u00ecnh l\u1eb7ng tr\u01b0\u1edbc c\u01a1n b\u00e3o"}, pic:"16-\u9ad8\u5854"}, 17:{name_cn:"\u661f\u661f", name_en:"The Star", type:"MajorArcana", meaning:{up:"Hy v\u1ecdng, t\u01b0\u01a1ng lai t\u01b0\u01a1i s\u00e1ng, b\u00ecnh minh l\u00f3 d\u1ea1ng", down:"Qu\u00e1 tham v\u1ecdng, hay thay \u0111\u1ed5i, ph\u1ea3n t\u00e1c d\u1ee5ng, m\u1ea5t m\u1ee5c \u0111\u00edch"}, 
+  pic:"17-\u661f\u661f"}, 18:{name_cn:"\u6708\u4eae", name_en:"The Moon", type:"MajorArcana", meaning:{up:"Kh\u00f4ng th\u1eadt, kh\u00f4ng tho\u1ea3i m\u00e1i v\u00e0 lung lay, b\u1ed1i r\u1ed1i, d\u1ed1i tr\u00e1", down:"T\u00ecnh h\u00ecnh \u0111ang d\u1ea7n \u0111\u01b0\u1ee3c c\u1ea3i thi\u1ec7n, nh\u1eefng nghi ng\u1edd \u0111ang m\u1edd d\u1ea7n v\u00e0 n\u1ed7i s\u1ee3 h\u00e3i \u0111\u00e3 \u0111\u01b0\u1ee3c gi\u1ea3i quy\u1ebft"}, pic:"18-\u6708\u4eae"}, 19:{name_cn:"\u592a\u9633", name_en:"The Sun", 
+  type:"MajorArcana", meaning:{up:"Tr\u00e0n \u0111\u1ea7y s\u1ee9c s\u1ed1ng, t\u01b0\u01a1i s\u00e1ng v\u00e0 t\u00edch c\u1ef1c", down:"Ch\u00e1n n\u1ea3n, ch\u00e1n n\u1ea3n, b\u1ea5t l\u1ef1c, ti\u00eau c\u1ef1c"}, pic:"19-\u592a\u9633"}, 20:{name_cn:"\u5ba1\u5224", name_en:"Judgement", type:"MajorArcana", meaning:{up:"T\u00e0i l\u1ed9c t\u0103ng up, ni\u1ec1m vui h\u1ed3i sinh, s\u1ee9c kh\u1ecfe h\u1ed3i ph\u1ee5c", down:"ch\u00e1n n\u1ea3n, v\u01b0\u1ee3t qua tr\u01b0\u1edbc khi n\u00f3 b\u1eaft \u0111\u1ea7u, t\u1ef1 nghi ng\u1edd, b\u00e1c b\u1ecf"}, 
+  pic:"20-\u5ba1\u5224"}, 21:{name_cn:"\u4e16\u754c", name_en:"The World", type:"MajorArcana", meaning:{up:"\u0111i\u1ec1u \u01b0\u1edbc ho\u00e0n th\u00e0nh, th\u00e0nh c\u00f4ng, \u0111\u00edch \u0111\u1ebfn", down:"Kh\u00f4ng th\u1ec3 cam k\u1ebft, b\u1ea5t an v\u1edbi hi\u1ec7n tr\u1ea1ng, b\u1ecf cu\u1ed9c gi\u1eefa ch\u1eebng, ch\u1ea5p nh\u1eadn m\u1ed9t c\u00e1ch m\u00f9 qu\u00e1ng"}, pic:"21-\u4e16\u754c"}, 22:{name_cn:"\u5b9d\u5251ACE", name_en:"Ace of Swords", type:"Swords", meaning:{up:"T\u00edch c\u1ef1c v\u00e0 x\u00f4ng x\u00e1o, nh\u1ea1y b\u00e9n, h\u1ee3p l\u00fd, kh\u1edfi \u0111\u1ea7u th\u00e0nh c\u00f4ng", 
+  down:"K\u00edch th\u00edch tranh c\u00e3i, hung h\u0103ng v\u00e0 tai h\u1ea1i, h\u1ed1ng h\u00e1ch, \u00fd t\u01b0\u1edfng b\u1ea5t c\u00f4ng"}, pic:"\u5b9d\u5251-01"}, 23:{name_cn:"\u5b9d\u52512", name_en:"II of Swords", type:"Swords", meaning:{up:"\u00fd ki\u1ebfn \u0111\u1ed1i l\u1eadp, th\u1eddi \u0111i\u1ec3m l\u1ef1a ch\u1ecdn, b\u1ea5t \u0111\u1ed3ng v\u00e0 xu h\u01b0\u1edbng ng\u1ea7m", down:"C\u00f3 l\u1ef1a ch\u1ecdn nh\u01b0ng tin \u0111\u1ed3n v\u00e0 l\u1eeba d\u1ed1i xu\u1ea5t hi\u1ec7n, do d\u1ef1 d\u1eabn \u0111\u1ebfn b\u1ecf l\u1ee1 c\u01a1 h\u1ed9i"}, 
+  pic:"\u5b9d\u5251-02"}, 24:{name_cn:"\u5b9d\u52513", name_en:"III of Swords", type:"Swords", meaning:{up:"C\u1ea3m th\u1ea5y t\u1ed5n th\u01b0\u01a1ng, phi\u1ec1n mu\u1ed9n trong cu\u1ed9c s\u1ed1ng, t\u1ee7i th\u00e2n", down:"Kh\u00e9p k\u00edn t\u00e2m l\u00fd, r\u1ed1i lo\u1ea1n c\u1ea3m x\u00fac, tr\u1ed1n tr\u00e1nh, l\u00e0m t\u1ed5n th\u01b0\u01a1ng nh\u1eefng ng\u01b0\u1eddi xung quanh"}, pic:"\u5b9d\u5251-03"}, 25:{name_cn:"\u5b9d\u52514", name_en:"IV of Swords", type:"Swords", meaning:{up:"B\u1ed5 sung n\u0103ng l\u01b0\u1ee3ng, r\u00fat lui l\u00e0m ti\u1ebfn, h\u00e0nh \u0111\u1ed9ng ch\u1eadm l\u1ea1i, ch\u00fa \u00fd t\u00f3m t\u1eaft", 
+  down:"h\u00e3y h\u00e0nh \u0111\u1ed9ng ngay, nh\u1ea3y v\u00e0o cu\u1ed9c s\u1ed1ng, v\u1ed9i v\u00e0ng khi ch\u01b0a chu\u1ea9n b\u1ecb \u0111\u1ea7y \u0111\u1ee7"}, pic:"\u5b9d\u5251-04"}, 26:{name_cn:"\u5b9d\u52515", name_en:"V of Swords", type:"Swords", meaning:{up:"M\u00e2u thu\u1eabn, h\u1ea1i nhau v\u00f4 c\u1edb, th\u1eafng tr\u1eadn m\u00e0 thua t\u00ecnh", down:"T\u00ecm ra gi\u1ea3i ph\u00e1p, xung \u0111\u1ed9t c\u00f3 kh\u1ea3 n\u0103ng \u0111\u01b0\u1ee3c gi\u1ea3i quy\u1ebft v\u00e0 c\u1ea3 hai b\u00ean \u0111\u1ec1u s\u1eb5n s\u00e0ng h\u1ea1 v\u0169 kh\u00ed"}, 
+  pic:"\u5b9d\u5251-05"}, 27:{name_cn:"\u5b9d\u52516", name_en:"VI of Swords", type:"Swords", meaning:{up:"V\u1ebft th\u01b0\u01a1ng \u0111\u00e3 l\u00e2u kh\u00f4ng l\u00e0nh, hi\u1ec7n t\u1ea1i kh\u00f4ng c\u00f3 bi\u1ec7n ph\u00e1p t\u1ed1t, sau n\u00e0y c\u00f2n kh\u00f3 kh\u0103n h\u01a1n n\u1eefa", down:"m\u1eafc k\u1eb9t trong r\u1eafc r\u1ed1i, li\u1ec1u l\u0129nh gi\u1ea3i quy\u1ebft trong khi b\u1ecf qua nh\u1eefng v\u1ea5n \u0111\u1ec1 l\u1edbn h\u01a1n ph\u00eda sau, c\u1ea7n s\u1ef1 gi\u00fap \u0111\u1ee1 ho\u1eb7c gi\u1ea3i c\u1ee9u t\u1eeb ng\u01b0\u1eddi kh\u00e1c"}, 
+  pic:"\u5b9d\u5251-06"}, 28:{name_cn:"\u5b9d\u52517", name_en:"VII of Swords", type:"Swords", meaning:{up:"S\u01a1 su\u1ea5t, th\u00e2m th\u00f9 b\u1ea5t l\u1ed9, th\u1ee7 \u0111o\u1ea1n phi th\u01b0\u1eddng hay ti\u1ec3u x\u1ea3o kh\u00f4ng d\u00f9ng \u0111\u01b0\u1ee3c l\u00e2u", down:"may m\u1eafn b\u1ea5t ng\u1edd, k\u1ebf ho\u1ea1ch x\u1ea5u, l\u1eeba d\u1ed1i"}, pic:"\u5b9d\u5251-07"}, 29:{name_cn:"\u5b9d\u52518", name_en:"VIII of Swords", type:"Swords", meaning:{up:"B\u1ecb c\u00f4 l\u1eadp, b\u1ea5t l\u1ef1c, m\u1eafc k\u1eb9t trong ho\u00e0n c\u1ea3nh kh\u00f3 kh\u0103n, m\u1eafc k\u1eb9t trong nh\u1eefng suy ngh\u0129 c\u1ea3n tr\u1edf h\u00e0nh \u0111\u1ed9ng", 
+  down:"Ra kh\u1ecfi xi\u1ec1ng x\u00edch, tho\u00e1t kh\u1ecfi kh\u1ee7ng ho\u1ea3ng, l\u00e0m l\u1ea1i t\u1eeb \u0111\u1ea7u"}, pic:"\u5b9d\u5251-08"}, 30:{name_cn:"\u5b9d\u52519", name_en:"IX of Swords", type:"Swords", meaning:{up:"Tinh th\u1ea7n s\u1ee3 h\u00e3i, s\u1ee3 h\u00e3i, lo l\u1eafng, \u0111i\u1ec1m b\u00e1o kh\u00f3 kh\u0103n ph\u00eda tr\u01b0\u1edbc", down:"M\u1ecdi th\u1ee9 xoay chuy\u1ec3n, tho\u00e1t kh\u1ecfi r\u1eafc r\u1ed1i, s\u1ed1ng trong qu\u00e1 kh\u1ee9, \u0111\u1ed1i m\u1eb7t v\u1edbi th\u1ef1c t\u1ebf"}, 
+  pic:"\u5b9d\u5251-09"}, 31:{name_cn:"\u5b9d\u525110", name_en:"X of Swords", type:"Swords", meaning:{up:"Ti\u1ebfn \u0111\u1ed9 b\u1ecb ch\u1eb7n nghi\u00eam tr\u1ecdng, kh\u00f4ng l\u1ed1i tho\u00e1t, v\u00f4 v\u1ecdng, c\u01a1 h\u1ed9i reset v\u1ec1 0", down:"S\u1ef1 s\u1ed1ng s\u00f3t t\u1eeb tuy\u1ec7t v\u1ecdng, hy v\u1ecdng tr\u1edf l\u1ea1i, nh\u1eefng \u0111i\u1ec1u c\u1ef1c \u0111oan s\u1ebd \u0111\u1ea3o ng\u01b0\u1ee3c"}, pic:"\u5b9d\u5251-10"}, 32:{name_cn:"\u5b9d\u5251\u56fd\u738b", 
+  name_en:"King of Swords", type:"Swords", meaning:{up:"C\u00f4ng l\u00fd, Quy\u1ec1n l\u1ef1c, L\u00e3nh \u0111\u1ea1o, B\u00ecnh t\u0129nh", down:"t\u01b0 duy thi\u00ean l\u1ec7ch, \u00e1p \u0111\u1eb7t t\u01b0 t\u01b0\u1edfng, c\u1ef1c \u0111oan, v\u00f4 nguy\u00ean t\u1eafc"}, pic:"\u5b9d\u5251\u56fd\u738b"}, 33:{name_cn:"\u5b9d\u5251\u738b\u540e", name_en:"Queen of Swords", type:"Swords", meaning:{up:"h\u1ee3p l\u00fd, suy ngh\u0129 nhanh, kho\u1ea3ng c\u00e1ch, c\u00f4ng b\u1eb1ng", down:"b\u01b0\u1edbng b\u1ec9nh, c\u1ef1c \u0111oan, ki\u00eau c\u0103ng, \u0111\u1ed9c \u0111o\u00e1n"}, 
+  pic:"\u5b9d\u5251\u738b\u540e"}, 34:{name_cn:"\u5b9d\u5251\u9a91\u58eb", name_en:"Knight of Swords", type:"Swords", meaning:{up:"H\u00e0nh \u0111\u1ed9ng d\u0169ng c\u1ea3m, \u0111\u1ea7y \u0111am m\u00ea", down:"k\u1ebf ho\u1ea1ch k\u00e9m, gi\u00e0u tr\u00ed t\u01b0\u1edfng t\u01b0\u1ee3ng, thi\u1ebfu ki\u00ean nh\u1eabn, ph\u00e1t ban, t\u1ef1 ph\u1ee5"}, pic:"\u5b9d\u5251\u9a91\u58eb"}, 35:{name_cn:"\u5b9d\u5251\u4f8d\u4ece", name_en:"Page of Swords", type:"Swords", meaning:{up:"Suy ngh\u0129 kh\u00e1c bi\u1ec7t, s\u00e1ng su\u1ed1t, ph\u00e1n \u0111o\u00e1n th\u1eadn tr\u1ecdng", 
+  down:"ph\u00e2n t\u00edch th\u00f4ng tin thi\u1ec3n c\u1eadn, ph\u1ea3n kh\u00ed h\u1eadu, kh\u00f4ng \u0111\u01b0\u1ee3c l\u1ecdc"}, pic:"\u5b9d\u5251\u4f8d\u4ece"}, 36:{name_cn:"\u6743\u6756ACE", name_en:"Ace of Wands", type:"Wands", meaning:{up:"Kh\u1edfi \u0111\u1ea7u m\u1edbi, c\u01a1 h\u1ed9i m\u1edbi, \u0111am m\u00ea ch\u00e1y b\u1ecfng, s\u00e1ng t\u1ea1o", down:"H\u00e0nh \u0111\u1ed9ng m\u1edbi c\u00f3 kh\u1ea3 n\u0103ng th\u1ea5t b\u1ea1i cao h\u01a1n, kh\u1edfi \u0111\u1ea7u k\u00e9m, \u00fd ch\u00ed y\u1ebfu"}, 
+  pic:"\u6743\u6756-01"}, 37:{name_cn:"\u6743\u67562", name_en:"II of Wands", type:"Wands", meaning:{up:"Nh\u00ecn v\u1ec1 ph\u00eda tr\u01b0\u1edbc, up k\u1ebf ho\u1ea1ch cho t\u01b0\u01a1ng lai, l\u1ef1a ch\u1ecdn gi\u1eefa th\u00f3i quen v\u00e0 hy v\u1ecdng", down:"Do d\u1ef1, h\u00e0nh \u0111\u1ed9ng b\u1ecb ch\u1eb7n, d\u00e0nh qu\u00e1 nhi\u1ec1u th\u1eddi gian \u0111\u1ec3 l\u1ef1a ch\u1ecdn"}, pic:"\u6743\u6756-02"}, 38:{name_cn:"\u6743\u67563", name_en:"II of Wands", type:"Wands", meaning:{up:"Th\u1eddi \u0111i\u1ec3m th\u00edch h\u1ee3p \u0111\u1ec3 kh\u00e1m ph\u00e1, ph\u00f9 h\u1ee3p v\u1edbi t\u00e2m h\u1ed3n, kh\u1ea3 n\u0103ng l\u00e3nh \u0111\u1ea1o, s\u1ef1 th\u1ed1ng tr\u1ecb", 
+  down:"H\u1ee3p t\u00e1c k\u00e9m, thi\u1ebfu l\u00e3nh \u0111\u1ea1o, b\u1ea5t h\u00f2a trong nh\u00f3m"}, pic:"\u6743\u6756-03"}, 39:{name_cn:"\u6743\u67564", name_en:"IV of Wands", type:"Wands", meaning:{up:"H\u00f2a b\u00ecnh v\u00e0 th\u1ecbnh v\u01b0\u1ee3ng, m\u1ed1i quan h\u1ec7 \u1ed5n \u0111\u1ecbnh, h\u1ecdc h\u00e0nh \u1ed5n \u0111\u1ecbnh ho\u1eb7c ph\u00e1t tri\u1ec3n ngh\u1ec1 nghi\u1ec7p", down:"M\u1ea5t c\u00e2n b\u1eb1ng, n\u1ec1n t\u1ea3ng b\u1ecb ph\u00e1 v\u1ee1, c\u00e1c m\u1ed1i quan h\u1ec7 ngh\u00e8o n\u00e0n, thu ho\u1ea1ch k\u00e9m"}, 
+  pic:"\u6743\u6756-04"}, 40:{name_cn:"\u6743\u67565", name_en:"V of Wands", type:"Wands", meaning:{up:"C\u1ea1nh tranh, xung \u0111\u1ed9t, m\u00e2u thu\u1eabn n\u1ed9i t\u00e2m, thi\u1ebfu \u0111\u1ed3ng thu\u1eadn", down:"C\u1ea1nh tranh kh\u00f4ng l\u00e0nh m\u1ea1nh, \u0111\u1ed3ng thu\u1eadn"}, pic:"\u6743\u6756-05"}, 41:{name_cn:"\u6743\u67566", name_en:"VI of Wands", type:"Wands", meaning:{"h\u01b0\u1edbng up":"Chi\u1ebfn th\u1eafng, th\u00e0nh c\u00f4ng \u0111\u01b0\u1ee3c \u0111\u1ec1n \u0111\u00e1p, su\u00f4n s\u1ebb, \u0111\u1ea7y hy v\u1ecdng", 
+  down:"th\u00e0nh c\u00f4ng ng\u1eafn ng\u1ee7i, t\u1ef1 m\u00e3n, m\u1ea5t t\u1ef1 tin"}, pic:"\u6743\u6756-06"}, 42:{name_cn:"\u6743\u67567", name_en:"VII of Wands", type:"Wands", meaning:{up:"Ni\u1ec1m tin m\u00e3nh li\u1ec7t, th\u00e1i \u0111\u1ed9 ki\u00ean \u0111\u1ecbnh, n\u1ed9i t\u1ea1i c\u00e2n b\u1eb1ng v\u00e0 quy\u1ebft t\u00e2m, tin t\u01b0\u1edfng v\u00e0o quan \u0111i\u1ec3m v\u00e0 kh\u1ea3 n\u0103ng c\u1ee7a b\u1ea3n th\u00e2n", down:"Nghi ng\u1edd v\u1ec1 kh\u1ea3 n\u0103ng c\u1ee7a m\u1ed9t ng\u01b0\u1eddi, thi\u1ebfu t\u1ef1 tin v\u00e0 l\u00e1i xe, thi\u1ebfu \u00fd ch\u00ed"}, 
+  pic:"\u6743\u6756-07"}, 43:{name_cn:"\u6743\u67568", name_en:"VIII of Wands", type:"Wands", meaning:{up:"M\u1ee5c ti\u00eau r\u00f5 r\u00e0ng, n\u1ed7 l\u1ef1c m\u1ea1nh m\u1ebd, ti\u1ebfn b\u1ed9 nhanh ch\u00f3ng, r\u00e8n luy\u1ec7n trong khi s\u1eaft c\u00f2n n\u00f3ng, \u0111i du l\u1ecbch", down:"\u0110i sai h\u01b0\u1edbng, h\u00e0nh \u0111\u1ed9ng kh\u00f4ng nh\u1ea5t qu\u00e1n, b\u1ed1c \u0111\u1ed3ng, ch\u1eadm tr\u1ec5 trong k\u1ebf ho\u1ea1ch"}, pic:"\u6743\u6756-08"}, 44:{name_cn:"\u6743\u67569", 
+  name_en:"IX of Wands", type:"Wands", meaning:{up:"Chu\u1ea9n b\u1ecb kh\u00f3 kh\u0103n, t\u1ef1 v\u1ec7, \u0111\u0129nh \u0111\u1ea1c, \u0111\u1ed1i kh\u00e1ng l\u1ef1c l\u01b0\u1ee3ng", down:"Ngh\u1ecbch c\u1ea3nh, m\u1ea5t t\u1ef1 tin, tinh th\u1ea7n th\u1ea5p"}, pic:"\u6743\u6756-09"}, 45:{name_cn:"\u6743\u675610", name_en:"X of Wands", type:"Wands", meaning:{up:"Tinh th\u1ea7n tr\u00e1ch nhi\u1ec7m, nhi\u1ec7t huy\u1ebft b\u00ean trong, l\u00e0m vi\u1ec7c qu\u00e1 s\u1ee9c, qu\u00e1 s\u1ee9c", 
+  down:"C\u0103ng th\u1eb3ng kh\u00f4ng th\u1ec3 ch\u1ecbu \u0111\u1ef1ng \u0111\u01b0\u1ee3c, \u0111\u00e1nh gi\u00e1 qu\u00e1 cao kh\u1ea3 n\u0103ng c\u1ee7a b\u1ea3n th\u00e2n, t\u1ef1 \u0111i\u1ec1u ch\u1ec9nh b\u1ea3n th\u00e2n, tr\u1ed1n tr\u00e1nh tr\u00e1ch nhi\u1ec7m"}, pic:"\u6743\u6756-10"}, 46:{name_cn:"\u6743\u6756\u56fd\u738b", name_en:"King of Wands", type:"Wands", meaning:{up:"H\u00e0nh \u0111\u1ed9ng m\u1ea1nh m\u1ebd, th\u00e1i \u0111\u1ed9 r\u00f5 r\u00e0ng, l\u1eadp chi\u1ebfn l\u01b0\u1ee3c, l\u00e3nh \u0111\u1ea1o l\u00f4i cu\u1ed1n", 
+  down:"T\u00f9y ti\u1ec7n, kh\u1eafc nghi\u1ec7t, ki\u00eau ng\u1ea1o"}, pic:"\u6743\u6756\u56fd\u738b"}, 47:{name_cn:"\u6743\u6756\u738b\u540e", name_en:"Queen of Wands", type:"Wands", meaning:{up:"C\u1ea3 c\u1ee9ng r\u1eafn v\u00e0 m\u1ec1m m\u1ea1i, nhi\u1ec7t t\u00ecnh v\u00e0 d\u1ecbu d\u00e0ng, l\u1ea1c quan v\u00e0 s\u00f4i n\u1ed5i", down:"c\u1ea3m x\u00fac, s\u1ef1 t\u1ef1 tin th\u1ea5p, s\u1ef1 nhi\u1ec7t t\u00ecnh suy gi\u1ea3m, s\u1ef1 c\u00f4 \u0111\u01a1n"}, pic:"\u6743\u6756\u738b\u540e"}, 
+  48:{name_cn:"\u6743\u6756\u9a91\u58eb", name_en:"Knight of Wands", type:"Wands", meaning:{up:"di \u0111\u1ed9ng, n\u0103ng l\u01b0\u1ee3ng, h\u00e0nh tr\u00ecnh m\u1edbi, thay \u0111\u1ed5i kh\u00f4ng th\u1ecfa m\u00e3n so v\u1edbi hi\u1ec7n tr\u1ea1ng", down:"li\u1ec1u l\u0129nh, li\u1ec1u l\u0129nh, ch\u1eadm tr\u1ec5 trong h\u00e0nh \u0111\u1ed9ng, kh\u00f4ng c\u00f3 k\u1ebf ho\u1ea1ch, thi\u1ebfu ki\u00ean nh\u1eabn"}, pic:"\u6743\u6756\u9a91\u58eb"}, 49:{name_cn:"\u6743\u6756\u4f8d\u4ece", 
+  name_en:"Page of Wands", type:"Wands", meaning:{up:"K\u1ebf ho\u1ea1ch m\u1edbi b\u1eaft \u0111\u1ea7u, th\u1eed \u0111i\u1ec1u m\u1edbi, tin vui \u0111\u1ebfn", down:"Ba ph\u00fat h\u0103ng h\u00e1i, l\u1eadp k\u1ebf ho\u1ea1ch qu\u00e1 l\u00e2u d\u1eabn \u0111\u1ebfn ti\u1ebfn \u0111\u1ed9 k\u00e9m, tin x\u1ea5u"}, pic:"\u6743\u6756\u4f8d\u4ece"}, 50:{name_cn:"\u5723\u676fACE", name_en:"Ace of Cups", type:"Cups", meaning:{up:"T\u00ecnh y\u00eau m\u1edbi ho\u1eb7c t\u00ecnh b\u1ea1n m\u1edbi, ni\u1ec1m vui tinh th\u1ea7n, s\u1ef1 h\u00e0i l\u00f2ng v\u1ec1 tinh th\u1ea7n", 
+  down:"Thi\u1ebfu c\u1ea3m x\u00fac, thi\u1ebfu giao ti\u1ebfp, \u0111\u1ea1o \u0111\u1ee9c gi\u1ea3"}, pic:"\u5723\u676f-01"}, 51:{name_cn:"\u5723\u676f2", name_en:"II of Cups", type:"Cups", meaning:{up:"M\u1ed1i quan h\u1ec7 h\u00e0i h\u00f2a v\u00e0 b\u00ecnh \u0111\u1eb3ng, t\u00ecnh y\u00eau l\u1eabn nhau gi\u1eefa nh\u1eefng ng\u01b0\u1eddi y\u00eau nhau, h\u1ee3p t\u00e1c su\u00f4n s\u1ebb", down:"M\u1ed1i quan h\u1ec7 gi\u1edbi c\u00f3 xu h\u01b0\u1edbng c\u1ef1c \u0111oan, chia r\u1ebd t\u00ecnh c\u1ea3m, b\u1ea5t b\u00ecnh \u0111\u1eb3ng, xung \u0111\u1ed9t"}, 
+  pic:"\u5723\u676f-02"}, 52:{name_cn:"\u5723\u676f3", name_en:"III of Cups", type:"Cups", meaning:{up:"H\u1ee3p t\u00e1c \u0111\u1ea1t k\u1ebft qu\u1ea3, ph\u1ea5n \u0111\u1ea5u \u0111\u1ea1t k\u1ebft qu\u1ea3", down:"C\u1ef1c vui sinh s\u1ea7u, kh\u00f4ng \u0111\u1ed3ng l\u00f2ng, \u0111\u1ed9i ng\u0169 b\u1ea5t h\u00f2a"}, pic:"\u5723\u676f-03"}, 53:{name_cn:"\u5723\u676f4", name_en:"IV of Cups", type:"Cups", meaning:{up:"M\u1ec7t m\u1ecfi, thi\u1ebfu \u0111\u1ed9ng l\u1ef1c, kh\u00f4ng c\u00f2n h\u1ee9ng th\u00fa v\u1edbi m\u1ecdi th\u1ee9, t\u00e2m tr\u1ea1ng ch\u00e1n n\u1ea3n", 
+  down:"M\u1ed1i quan h\u1ec7 m\u1edbi, h\u00e0nh \u0111\u1ed9ng, h\u1ebft th\u1ee7y tri\u1ec1u"}, pic:"\u5723\u676f-04"}, 54:{name_cn:"\u5723\u676f5", name_en:"V of Cups", type:"Cups", meaning:{up:"Qu\u00e1 \u0111\u1ec3 \u00fd \u0111\u1ebfn nh\u1eefng th\u1ee9 \u0111\u00e3 m\u1ea5t, t\u1ef1 tr\u00e1ch m\u00ecnh, thi\u1ebfu t\u1ef1 tin, t\u1eeb ch\u1ed1i s\u1ef1 gi\u00fap \u0111\u1ee1 t\u1eeb b\u00ean ngo\u00e0i do xa c\u00e1ch", down:"Ra kh\u1ecfi \u0111au bu\u1ed3n, ph\u00e1 thuy\u1ec1n, tr\u1edf l\u1ea1i"}, 
+  pic:"\u5723\u676f-05"}, 55:{name_cn:"\u5723\u676f6", name_en:"VI of Cups", type:"Cups", meaning:{up:"N\u1ed7i nh\u1edb, k\u1ec9 ni\u1ec7m \u0111\u1eb9p, c\u1ea3m x\u00fac trong s\u00e1ng, ni\u1ec1m vui gi\u1ea3n \u0111\u01a1n, an ninh", down:"Nghi\u1ec7n qu\u00e1 kh\u1ee9, k\u00fd \u1ee9c t\u1ed3i t\u1ec7, kh\u00f4ng mu\u1ed1n b\u1ecb r\u00e0ng bu\u1ed9c"}, pic:"\u5723\u676f-06"}, 56:{name_cn:"\u5723\u676f7", name_en:"VII of Cups", type:"Cups", meaning:{up:"Nh\u1eefng t\u01b0\u1edfng t\u01b0\u1ee3ng vi\u1ec3n v\u00f4ng, nh\u1eefng m\u1ed1i quan h\u1ec7 vi\u1ec3n v\u00f4ng, nh\u1eefng c\u1ea3m x\u00fac h\u00e3o huy\u1ec1n, cu\u1ed9c s\u1ed1ng b\u1ed9n b\u1ec1", 
+  down:"Nh\u00ecn r\u00f5 th\u1ef1c t\u1ebf, kh\u00f4ng h\u00e0i l\u00f2ng v\u1edbi nh\u1eefng th\u1ee9 v\u1eadt ch\u1ea5t v\u00e0 \u0111\u01b0a ra nh\u1eefng l\u1ef1a ch\u1ecdn s\u00e1ng su\u1ed1t"}, pic:"\u5723\u676f-07"}, 57:{name_cn:"\u5723\u676f8", name_en:"VIII of Cups", type:"Cups", meaning:{up:"L\u00eca b\u1ecf ng\u01b0\u1eddi v\u00e0 v\u1eadt quen thu\u1ed9c, kh\u00f4ng ham th\u00e0nh t\u00edch hi\u1ec7n t\u1ea1i, suy x\u00e9t m\u00e0 h\u00e0nh \u0111\u1ed9ng", down:"Do d\u1ef1, m\u1ea5t k\u1ebf ho\u1ea1ch t\u01b0\u01a1ng lai, hi\u1ec7n tr\u1ea1ng"}, 
+  pic:"\u5723\u676f-08"}, 58:{name_cn:"\u5723\u676f9", name_en:"IX of Cups", type:"Cups", meaning:{up:"Mong mu\u1ed1n r\u1ea5t c\u00f3 th\u1ec3 th\u00e0nh hi\u1ec7n th\u1ef1c, to\u1ea1i nguy\u1ec7n hi\u1ec7n tr\u1ea1ng, gi\u00e0u c\u00f3 v\u1ec1 v\u1eadt ch\u1ea5t v\u00e0 tinh th\u1ea7n", down:"M\u1ea5t m\u00e1t v\u1eadt ch\u1ea5t, thi\u1ebfu ki\u1ec1m ch\u1ebf, m\u01b0u c\u1ea7u h\u1ea1nh ph\u00fac cao h\u01a1n"}, pic:"\u5723\u676f-09"}, 59:{name_cn:"\u5723\u676f10", name_en:"X of Cups", type:"Cups", 
+  meaning:{up:"\u0110\u1ed9i ng\u0169 h\u00e0i h\u00f2a, m\u1ed1i quan h\u1ec7 gi\u1eefa c\u00e1c c\u00e1 nh\u00e2n h\u00e0i h\u00f2a, gia \u0111\u00ecnh h\u00f2a thu\u1eadn", down:"\u0110\u1ed9i b\u1ea5t h\u00f2a, b\u1ea5t h\u00f2a gi\u1eefa c\u00e1c c\u00e1 nh\u00e2n, xung \u0111\u1ed9t"}, pic:"\u5723\u676f-10"}, 60:{name_cn:"\u5723\u676f\u56fd\u738b", name_en:"King of Cups", type:"Cups", meaning:{up:"S\u00e1ng t\u1ea1o, quy\u1ec1n quy\u1ebft \u0111\u1ecbnh, chuy\u00ean m\u00f4n trong m\u1ed9t l\u0129nh v\u1ef1c nh\u1ea5t \u0111\u1ecbnh, chia s\u1ebb ho\u1eb7c trao \u0111\u1ed5i c\u00f3 \u0111i\u1ec1u ki\u1ec7n", 
+  down:"s\u1ef1 tr\u00f9ng l\u1eb7p, \u0111\u1ed9ng c\u01a1 th\u1ea7m k\u00edn, kh\u00f4ng tin t\u01b0\u1edfng v\u00e0o kh\u1ea3 n\u0103ng t\u1ef1 s\u00e1ng t\u1ea1o"}, pic:"\u5723\u676f\u56fd\u738b"}, 61:{name_cn:"\u5723\u676f\u738b\u540e", name_en:"Queen of Cups", type:"Cups", meaning:{up:"C\u1ea3m x\u00fac phong ph\u00fa v\u00e0 tinh t\u1ebf, nh\u1ea5n m\u1ea1nh tr\u1ef1c gi\u00e1c v\u00e0 suy ngh\u0129 c\u1ea3m t\u00ednh", down:"Qu\u00e1 x\u00fac \u0111\u1ed9ng, thi\u1ebfu ch\u00fa \u00fd, b\u1ecb c\u00f4 l\u1eadp v\u1ec1 tinh th\u1ea7n"}, 
+  pic:"\u5723\u676f\u738b\u540e"}, 62:{name_cn:"\u5723\u676f\u9a91\u58eb", name_en:"Knight of Cups", type:"Cups", meaning:{up:"Quy\u1ebft \u0111\u1ecbnh gi\u1eefa ch\u1edd \u0111\u1ee3i v\u00e0 h\u00e0nh \u0111\u1ed9ng, c\u01a1 h\u1ed9i m\u1edbi \u0111ang \u0111\u1ebfn", down:"S\u1eed d\u1ee5ng c\u1ea3m x\u00fac kh\u00f4ng \u0111\u1ee7, ch\u1edd \u0111\u1ee3i th\u1ee5 \u0111\u1ed9ng, h\u00e0nh \u0111\u1ed9ng sai theo c\u1ea3m x\u00fac"}, pic:"\u5723\u676f\u9a91\u58eb"}, 63:{name_cn:"\u5723\u676f\u4f8d\u4ece", 
+  name_en:"Page of Cups", type:"Cups", meaning:{up:"Th\u1ec3 hi\u1ec7n c\u1ea3m x\u00fac v\u00e0 c\u1ed1ng hi\u1ebfn, s\u1eafp c\u00f3 tin vui, theo \u0111u\u1ed5i t\u00ecnh c\u1ea3m nh\u01b0ng ch\u01b0a tr\u01b0\u1edfng th\u00e0nh", down:"Theo \u0111u\u1ed5i t\u00ecnh c\u1ea3m nh\u01b0ng sai l\u1ea7m, c\u1ea3m x\u00fac m\u01a1 h\u1ed3, qu\u00e1 g\u1eafn b\u00f3 v\u1edbi c\u1ea3m x\u00fac ho\u1eb7c v\u1ea5n \u0111\u1ec1"}, pic:"\u5723\u676f\u4f8d\u4ece"}, 64:{name_cn:"\u661f\u5e01ACE", name_en:"Ace of Pentacles", 
+  type:"Pentacles", meaning:{up:"C\u01a1 h\u1ed9i m\u1edbi, ph\u00e1t tri\u1ec3n thu\u1eadn l\u1ee3i, l\u1ee3i nhu\u1eadn v\u1eadt ch\u1ea5t", down:"Ti\u1ec1n m\u1ea5t, k\u00e9m ph\u00e1t tri\u1ec3n, v\u1eadt ch\u1ea5t d\u1ed3i d\u00e0o nh\u01b0ng tr\u1ed1ng r\u1ed7ng tinh th\u1ea7n"}, pic:"\u661f\u5e01-01"}, 65:{name_cn:"\u661f\u5e012", name_en:"II of Pentacles", type:"Pentacles", meaning:{up:"C\u00e1n c\u00e2n thanh to\u00e1n, lu\u00e2n chuy\u1ec3n c\u1ee7a c\u1ea3i, bi\u1ebfn \u0111\u1ed9ng v\u00e0 c\u00e2n b\u1eb1ng cu\u1ed9c s\u1ed1ng", 
+  down:"S\u1eed d\u1ee5ng ti\u1ec1n qu\u00e1 m\u1ee9c, kh\u00f3 duy tr\u00ec s\u1ef1 c\u00e2n b\u1eb1ng, \u0111\u1ed1i m\u1eb7t v\u1edbi t\u1ed5n th\u1ea5t v\u1eadt ch\u1ea5t"}, pic:"\u661f\u5e01-02"}, 66:{name_cn:"\u661f\u5e013", name_en:"III of Pentacles", type:"Pentacles", meaning:{up:"L\u00e0m vi\u1ec7c theo nh\u00f3m, giao ti\u1ebfp tr\u00f4i ch\u1ea3y, tay ngh\u1ec1 cao, m\u1ed1i quan h\u1ec7 \u1ed5n \u0111\u1ecbnh", down:"Ph\u00e2n c\u00f4ng lao \u0111\u1ed9ng kh\u00f4ng r\u00f5 r\u00e0ng, quan h\u1ec7 gi\u1eefa ng\u01b0\u1eddi v\u1edbi ng\u01b0\u1eddi kh\u00f4ng h\u00e0i h\u00f2a, tr\u00ecnh \u0111\u1ed9 chuy\u00ean m\u00f4n c\u00f2n thi\u1ebfu"}, 
+  pic:"\u661f\u5e01-03"}, 67:{name_cn:"\u661f\u5e014", name_en:"IV of Pentacles", type:"Pentacles", meaning:{up:"T\u1eadn t\u00e2m, b\u1ee7n x\u1ec9n, b\u1ee7n x\u1ec9n, c\u1ee7a c\u1ea3i tr\u00ec tr\u1ec7, thi\u1ebfu th\u1ed1n tinh th\u1ea7n", down:"S\u1ed1ng ngo\u00e0i kh\u1ea3 n\u0103ng c\u1ee7a m\u00ecnh, ng\u00f4ng cu\u1ed3ng, ng\u00f4ng cu\u1ed3ng"}, pic:"\u661f\u5e01-04"}, 68:{name_cn:"\u661f\u5e015", name_en:"V of Pentacles", type:"Pentacles", meaning:{up:"Kh\u1ee7ng ho\u1ea3ng kinh t\u1ebf, c\u00f9ng kh\u1ed5, kh\u00f3 kh\u0103n", 
+  down:"V\u1ea5n \u0111\u1ec1 n\u01a1i \u1edf, cu\u1ed9c s\u1ed1ng b\u1ed9n b\u1ec1, ly lao v\u00e0 nu\u1ed1t ch\u1eedng"}, pic:"\u661f\u5e01-05"}, 69:{name_cn:"\u661f\u5e016", name_en:"VI of Pentacles", type:"Pentacles", meaning:{up:"h\u00e0o ph\u00f3ng, cho \u0111i, c\u00f3 \u0111i c\u00f3 l\u1ea1i, \u1ed5n \u0111\u1ecbnh v\u1ec1 t\u00e0i ch\u00ednh v\u00e0 l\u1ea1c quan", down:"\u00edch k\u1ef7, m\u01b0u m\u00f4, m\u1eafc n\u1ee3, ho\u1eb7c m\u1eafc n\u1ee3 ng\u01b0\u1eddi kh\u00e1c"}, pic:"\u661f\u5e01-06"}, 
+  70:{name_cn:"\u661f\u5e017", name_en:"VII of Pentacles", type:"Pentacles", meaning:{up:"Ch\u1edd th\u1eddi gian ch\u00edn mu\u1ed3i, \u0111\u1ea1t \u0111\u01b0\u1ee3c k\u1ebft qu\u1ea3 theo t\u1eebng giai \u0111o\u1ea1n v\u00e0 ngh\u0129 v\u1ec1 k\u1ebf ho\u1ea1ch", down:"N\u1ed7 l\u1ef1c g\u1ea5p \u0111\u00f4i, n\u1ed7 l\u1ef1c m\u1ed9t n\u1eeda, \u0111\u1ea7u t\u01b0 th\u1ea5t b\u1ea1i, do d\u1ef1"}, pic:"\u661f\u5e01-07"}, 71:{name_cn:"\u661f\u5e018", name_en:"VIII of Pentacles", type:"Pentacles", 
+  meaning:{up:"L\u00e0m vi\u1ec7c t\u1eadp trung, l\u00e0nh ngh\u1ec1, n\u0103ng n\u1ed5, c\u00f3 t\u1ed5 ch\u1ee9c", down:"M\u1ea5t t\u1eadp trung, c\u00f4ng vi\u1ec7c bu\u1ed3n t\u1ebb, hi\u1ec7u qu\u1ea3 c\u00f4ng vi\u1ec7c k\u00e9m"}, pic:"\u661f\u5e01-08"}, 72:{name_cn:"\u661f\u5e019", name_en:"IX of Pentacles", type:"Pentacles", meaning:{up:"S\u1ef1 nghi\u1ec7p th\u0103ng ti\u1ebfn, ti\u1ebfp t\u1ee5c t\u1ea1o \u0111i\u1ec1u ki\u1ec7n thu\u1eadn l\u1ee3i cho b\u1ea3n th\u00e2n, bi\u1ebft ti\u1ebft ki\u1ec7m chi ti\u00eau", 
+  down:"M\u1ea5t c\u1ee7a c\u1ea3i, b\u1ecf ti\u1ec1n theo \u0111u\u1ed5i cu\u1ed9c s\u1ed1ng, thi\u1ebfu kh\u1ea3 n\u0103ng qu\u1ea3n l\u00fd"}, pic:"\u661f\u5e01-09"}, 73:{name_cn:"\u661f\u5e0110", name_en:"X of Pentacles", type:"Pentacles", meaning:{up:"\u0110\u1ed9i h\u00f2a h\u1ee3p, \u0111\u1ed1i t\u00e1c kinh doanh th\u00e0nh c\u00f4ng, gia \u0111\u00ecnh h\u00f2a thu\u1eadn", down:"\u0110\u1ed9i b\u1ea5t h\u00f2a, h\u1ee3p t\u00e1c \u0111\u1ea7u t\u01b0 b\u1ecb \u0111\u00ecnh ch\u1ec9, gia \u0111\u00ecnh b\u1ea5t h\u00f2a"}, 
+  pic:"\u661f\u5e01-10"}, 74:{name_cn:"\u661f\u5e01\u56fd\u738b", name_en:"King of Pentacles", type:"Pentacles", meaning:{up:"Ng\u01b0\u1eddi th\u00e0nh \u0111\u1ea1t, tr\u1ecdng v\u1eadt ch\u1ea5t, gi\u1ecfi qu\u1ea3n l\u00fd, \u0111\u00e1ng tin c\u1eady, tr\u01b0\u1edfng th\u00e0nh v\u00e0 th\u1ef1c d\u1ee5ng", down:"Thi\u1ebfu nh\u1ea1y b\u00e9n v\u1ec1 kinh t\u1ebf, thi\u1ebfu ni\u1ec1m tin, qu\u1ea3n l\u00fd y\u1ebfu k\u00e9m, m\u1ea5t ni\u1ec1m tin"}, pic:"\u661f\u5e01\u56fd\u738b"}, 75:{name_cn:"\u661f\u5e01\u738b\u540e", 
+  name_en:"Queen of Pentacles", type:"Pentacles", meaning:{up:"tr\u01b0\u1edfng th\u00e0nh, th\u1ecbnh v\u01b0\u1ee3ng, \u0111\u00e1ng tin c\u1eady, \u1ea5m \u00e1p, y\u00ean b\u00ecnh", down:"s\u1ef1 ph\u00f9 phi\u1ebfm, cu\u1ed9c s\u1ed1ng h\u00e0o nho\u00e1ng, th\u00e1i \u0111\u1ed9 t\u1ed3i t\u1ec7"}, pic:"\u661f\u5e01\u738b\u540e"}, 76:{name_cn:"\u661f\u5e01\u9a91\u58eb", name_en:"Knight of Pentacles", type:"Pentacles", meaning:{up:"Ch\u00fa tr\u1ecdng hi\u1ec7u qu\u1ea3, tinh th\u1ea7n tr\u00e1ch nhi\u1ec7m, c\u1ea9n tr\u1ecdng, c\u00f3 k\u1ebf ho\u1ea1ch", 
+  down:"T\u01b0 duy bu\u00f4ng th\u1ea3, b\u1ea3o th\u1ee7, tr\u00ec tr\u1ec7 ph\u00e1t tri\u1ec3n"}, pic:"\u661f\u5e01\u9a91\u58eb"}, 77:{name_cn:"\u661f\u5e01\u4f8d\u4ece", name_en:"Page of Pentacles", type:"Pentacles", meaning:{up:"gi\u1ecfi suy ngh\u0129 v\u00e0 h\u1ecdc h\u1ecfi, ham h\u1ecdc h\u1ecfi, tin t\u1ee9c t\u1ed1t li\u00ean quan \u0111\u1ebfn ki\u1ebfn th\u1ee9c ho\u1eb7c c\u00f4ng vi\u1ec7c nghi\u00ean c\u1ee9u", down:"Ki\u1ebfn th\u1ee9c k\u00e9m, thi\u1ebfu t\u1ef1 gi\u00e1c, th\u1ea5t tho\u00e1t t\u00e0i ch\u00ednh, t\u1ea7m nh\u00ecn h\u1ea1n h\u1eb9p"}, 
+  pic:"\u661f\u5e01\u4f8d\u4ece"}}};
 }
-
+;
